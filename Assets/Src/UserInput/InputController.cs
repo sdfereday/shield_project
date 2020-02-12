@@ -2,41 +2,93 @@
 
 namespace Game.UserInput
 {
-    public class InputController : MonoBehaviour
+    // See: https://bitbucket.org/drunkenoodle/rr-clone/src for original (and battle ideas).
+    [RequireComponent(typeof(Rigidbody))]
+    public class InputController : MonoBehaviour, IDirectionInfo
     {
-        CharacterController characterController;
+        public delegate void InputAction(INPUT_TYPE inputType);
+        public static event InputAction OnConfirm;
+        public static event InputAction OnCancel;
 
-        public float speed = 6.0f;
-        public float gravity = 20.0f;
+        public float maxSpeed = 5f;
+        public bool InteractionsEnabled { get; private set; }
+        public bool MovementEnabled { get; private set; }
+        public Vector3 Facing { get; set; }
+        public Vector3 CurrentVelocity => rbody.velocity;
+        public RelativeCam relativeCam;
 
-        private Vector3 moveDirection = Vector3.zero;
+        private Rigidbody rbody;
 
-        void Start()
+        private void OnSceneLoadComplete() => ToggleMovement(true);
+        private void OnSceneLoadStarted() => ToggleMovement(false);
+
+        private void Start()
         {
-            characterController = GetComponent<CharacterController>();
+            rbody = GetComponent<Rigidbody>();
+            rbody.freezeRotation = true;
+
+            relativeCam = GetComponent<RelativeCam>();
+
+            Facing = Vector3.forward;
+
+            InteractionsEnabled = OnConfirm != null || OnCancel != null;
+            MovementEnabled = true;
         }
 
-        void Update()
+        private void Update()
         {
-            // Face the movement direction
-            float heading = Mathf.Atan2(characterController.velocity.x, characterController.velocity.z) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(0f, heading, 0f);
-
-            // We are grounded, so recalculate
-            // move direction directly from axes
-            if (characterController.isGrounded)
+            if (InteractionsEnabled)
             {
-                moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0.0f, Input.GetAxis("Vertical"));
-                moveDirection *= speed;
+                if (Input.GetKeyDown(KeyCodeConsts.CONFIRM))
+                {
+                    OnConfirm(INPUT_TYPE.USE);
+                }
+
+                if (Input.GetKeyDown(KeyCodeConsts.CANCEL))
+                {
+                    OnCancel(INPUT_TYPE.CANCEL);
+                }
             }
-
-            // Apply gravity. Gravity is multiplied by deltaTime twice (once here, and once below
-            // when the moveDirection is multiplied by deltaTime). This is because gravity should be applied
-            // as an acceleration (ms^-2)
-            moveDirection.y -= gravity * Time.deltaTime;
-
-            // Move the controller
-            characterController.Move(moveDirection * Time.deltaTime);
         }
+
+        private void FixedUpdate()
+        {
+            if (MovementEnabled)
+            {
+                float xAxis = Input.GetAxisRaw(KeyCodeConsts.Horizontal);
+                float zAxis = Input.GetAxisRaw(KeyCodeConsts.Vertical);
+
+                // Time to fix it properly: https://medium.com/ironequal/unity-character-controller-vs-rigidbody-a1e243591483
+                // var nm = new Vector3(xAxis, 0, zAxis) * maxSpeed * Time.deltaTime;
+                var vel = new Vector3(relativeCam.GetRelativeVelocity().x, 0, relativeCam.GetRelativeVelocity().z) * (maxSpeed * maxSpeed) * Time.fixedDeltaTime;
+
+                // Since we're directly setting velocity, we need to make sure gravity is being applie.
+                vel.y = rbody.velocity.y;
+
+                // This makes the gravity a bit chonkier and more believable.
+                rbody.AddForce(Physics.gravity * 4f, ForceMode.Acceleration);
+
+                // Apply it all
+                rbody.velocity = vel;
+                
+                // Log which way we're facing
+                Facing = rbody.velocity.normalized;
+
+                // Face the movement direction (if velocity changed)
+                if (xAxis != 0 || zAxis != 0)
+                {
+                    float heading = Mathf.Atan2(rbody.velocity.x, rbody.velocity.z) * Mathf.Rad2Deg;
+                    transform.rotation = Quaternion.Euler(0f, heading, 0f);
+                }
+            }
+        }
+
+        public void ToggleInteractions(bool state) => InteractionsEnabled = state;
+
+        public void ToggleMovement(bool state) => MovementEnabled = state;
+
+        public Vector3 GetDirectionVector3D() => Facing;
+
+        public float GetCurrentMagnitude() => rbody.velocity.magnitude;
     }
 }
