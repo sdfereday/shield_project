@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - Map
+  - GameContext
+  - SceneContext
+  - UI
   layers:
   - Default
   - TransparentFX

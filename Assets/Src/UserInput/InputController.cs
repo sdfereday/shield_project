@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using Game.GameCamera;
+using Game.SceneManagement;
 
 namespace Game.UserInput
 {
@@ -19,8 +21,19 @@ namespace Game.UserInput
 
         private Rigidbody rbody;
 
-        private void OnSceneLoadComplete() => ToggleMovement(true);
+        private void OnEnable() {
+            SceneController.OnSceneLoadStarted += OnSceneLoadStarted;
+            SceneController.OnSceneLoadComplete += OnSceneLoadComplete;
+        }
+
+        private void OnDisable()
+        {
+            SceneController.OnSceneLoadStarted -= OnSceneLoadStarted;
+            SceneController.OnSceneLoadComplete -= OnSceneLoadComplete;
+        }
+
         private void OnSceneLoadStarted() => ToggleMovement(false);
+        private void OnSceneLoadComplete() => ToggleMovement(true);
 
         private void Start()
         {
