@@ -1,6 +1,12 @@
 ﻿using UnityEngine;
 using Game.Constants;
 
+/* It's worth noting that any 'assigned' fields in the inspector
+ * that reference to any components attached to objects that use
+ * this script will not function correctly, presumably due to
+ * memory assignment. So you must get them via GetComponent
+ * on the script that needs access to them.
+ */
 namespace Game.Toolbox.Helpers
 {
     public class DontDestroy : MonoBehaviour
@@ -9,15 +15,12 @@ namespace Game.Toolbox.Helpers
 
         private void Awake()
         {
-            if (!string.IsNullOrEmpty(transform.tag))
+            if (string.IsNullOrEmpty(transform.tag) || transform.CompareTag(GlobalConsts.UNTAGGED_TAG))
             {
-                TagName = transform.tag;
+                throw new UnityException(GlobalConsts.ERROR_STRING_EMPTY + transform.name);
             }
 
-            if (string.IsNullOrEmpty(TagName))
-            {
-                throw new UnityException(GlobalConsts.ERROR_STRING_EMPTY);
-            }
+            TagName = transform.tag;
 
             GameObject[] objs = GameObject.FindGameObjectsWithTag(TagName);
 

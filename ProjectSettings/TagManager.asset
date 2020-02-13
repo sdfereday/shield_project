@@ -9,6 +9,8 @@ TagManager:
   - SceneContext
   - UI
   - NPC
+  - EventSystem
+  - UI.DialogueBox
   layers:
   - Default
   - TransparentFX

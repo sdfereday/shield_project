@@ -1,14 +1,22 @@
 ﻿/* This is mock data that is used alongside the dialogue runner
  * tests and should not be used in production. */
+using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 using Game.Dialogue;
+using Game.Entities;
 
 namespace Game.MockServices
 {
-    public static class MockDialogueData
+    public class MockDialogueService : MonoBehaviour
     {
+        private string FirstNodeId = "n1";
+        private List<DialogueNode> LoadedChatNodes;
+        private Entity[] MockEntities;
+        private List<DialogueNode> ChatNodeData;
+
         /* Nodes could easily have a dialogue editor built for them. */
-        public static List<DialogueNode> ChatNodes = new List<DialogueNode>()
+        public List<DialogueNode> ChatNodes = new List<DialogueNode>()
         {
             new DialogueNode()
             {
@@ -70,5 +78,51 @@ namespace Game.MockServices
                 }
             }
         };
+
+        private string ParseName(string actorId)
+        {
+            Entity currentActor = MockEntities.FirstOrDefault(y => y.Id == actorId);
+            return currentActor ? currentActor.Name : "{ Undefined }";
+        }
+
+        private string ParseText(string original, string[] textParams)
+        {
+            string[] namesFromParams = textParams != null ? textParams
+                .Select(id =>
+                {
+                    Entity current = MockEntities.FirstOrDefault(y => y.Id == id);
+                    return current != null ? current.Name : "{ Undefined }";
+                })
+                .ToArray() : new string[] { "{ Undefined }" };
+
+            return string.Format(original, namesFromParams);
+        }
+
+        private void Start()
+        {
+            // Not the most performent thing, but it works (it won't work efficiently
+            // in a game with lots of npc's though, you need to get what you need,
+            // maybe put the id's in the chat data at the top?)
+            MockEntities = FindObjectsOfType<Entity>();
+            
+            // Bootstrap the new conversation (again implementation may vary)
+            ChatNodeData = new List<DialogueNode>(ChatNodes).Select(node =>
+            {
+                node.ActorName = ParseName(node.ActorId);
+                node.Text = ParseText(node.Text, node.TextParams);
+
+                if (node.Choices != null)
+                {
+                    node.Choices
+                        .ForEach(subNode =>
+                        {
+                            subNode.ActorName = ParseName(node.ActorId);
+                            subNode.Text = ParseText(subNode.Text, subNode.TextParams);
+                        });
+                }
+
+                return node;
+            }).ToList();
+        }
     }
 }

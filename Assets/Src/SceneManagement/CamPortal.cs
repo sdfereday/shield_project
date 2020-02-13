@@ -20,12 +20,12 @@ namespace Game.SceneManagement
 
             if (sceneController == null)
             {
-                throw new UnityException(GlobalConsts.ERROR_COMPONENT_NULL);
+                throw new UnityException(GlobalConsts.ERROR_COMPONENT_NULL + transform.name);
             }
 
             if (activateCameraContainer == null)
             {
-                throw new UnityException(GlobalConsts.ERROR_CAM_CONTAINER_NULL);
+                throw new UnityException(GlobalConsts.ERROR_CAM_CONTAINER_NULL + transform.name);
             }
         }
 

@@ -8,6 +8,7 @@ namespace Game.Toolbox.Effects
     public class SceneCurtain : MonoBehaviour
     {
         public RawImage fadeOutUIImage;
+        public RawImage fadeOutLoadingImage;
         public float fadeSpeed = 0.8f;
         public enum FadeDirection
         {
@@ -18,6 +19,8 @@ namespace Game.Toolbox.Effects
         private void SetColorImage(ref float alpha, FadeDirection fadeDirection)
         {
             fadeOutUIImage.color = new Color(fadeOutUIImage.color.r, fadeOutUIImage.color.g, fadeOutUIImage.color.b, alpha);
+            fadeOutLoadingImage.color = new Color(fadeOutLoadingImage.color.r, fadeOutLoadingImage.color.g, fadeOutLoadingImage.color.b, alpha);
+
             alpha += Time.deltaTime * (1.0f / fadeSpeed) * ((fadeDirection == FadeDirection.Out) ? -1 : 1);
         }
         
@@ -25,6 +28,7 @@ namespace Game.Toolbox.Effects
         {
             float alpha = (fadeDirection == FadeDirection.Out) ? 1 : 0;
             float fadeEndValue = (fadeDirection == FadeDirection.Out) ? 0 : 1;
+
             if (fadeDirection == FadeDirection.Out)
             {
                 while (alpha >= fadeEndValue)
@@ -33,10 +37,12 @@ namespace Game.Toolbox.Effects
                     yield return null;
                 }
                 fadeOutUIImage.enabled = false;
+                fadeOutLoadingImage.enabled = false;
             }
             else
             {
                 fadeOutUIImage.enabled = true;
+                fadeOutLoadingImage.enabled = true;
                 while (alpha <= fadeEndValue)
                 {
                     SetColorImage(ref alpha, fadeDirection);

@@ -21,6 +21,7 @@ namespace Game.Inventory
         public List<ItemMeta> itemsField;
         public List<ItemMeta> Items { get => itemsField; }
 
+        // TODO: Usually a data load would likely trigger the Init method, so that needs sorting.
         public void Init(List<ItemMeta> loadedItems = null)
         {
             // Notice how it's the meta that's getting stored here. The SO doesn't get touched
@@ -33,13 +34,14 @@ namespace Game.Inventory
         {
             // TODO: Maybe don't find by type. An id is far more effective (use a table for this).
             // Check for existing and increase qty if so.
-            var existing = itemsField.Find(x => x.Type == collectibleItemObject.CollectibleItemType);
+            var existing = itemsField.Find(x => x.Id == collectibleItemObject.Id);
+            Debug.Log(itemsField.Count);
 
             if (existing != null)
             {
                 if (existing.Type == ITEM_TYPE.KEY_ITEM)
                 {
-                    throw new UnityException(GlobalConsts.ERROR_KEYITEM_UNIQUE);
+                    throw new UnityException(GlobalConsts.ERROR_KEYITEM_UNIQUE + transform.name);
                 }
 
                 existing.Qty += qty;

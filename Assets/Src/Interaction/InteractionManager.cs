@@ -5,7 +5,7 @@ using Game.Toolbox.Helpers;
 
 namespace Game.Interaction
 {
-    [RequireComponent(typeof(InteractionHandlerService))]
+    [RequireComponent(typeof(InteractionRouter))]
     public class InteractionManager : MonoBehaviour
     {
         public float interactRadius = 1f;
@@ -14,14 +14,14 @@ namespace Game.Interaction
         public LayerMask selectObjectsToHit;
         public Collider[] ignoreColliders;
 
-        private InteractionHandlerService interactionHandler;
+        private InteractionRouter interactionHandler;
         
         private void Start()
         {
             interactPosition = interactPosition == null ? transform : interactPosition;
             interactCollider.isTrigger = true;
 
-            interactionHandler = GetComponent<InteractionHandlerService>();
+            interactionHandler = GetComponent<InteractionRouter>();
         }
 
         private List<Collider> GetInteractees()

@@ -24,7 +24,8 @@ namespace Game.Dialogue
         public GameObject ButtonContainer;
         public GameObject NextButtonPrefab;
         public GameObject ChoiceButtonPrefab;
-        
+        public bool debug = false;
+
         private DialogueIterator chatIterator;
         private bool WaitingForChoices { get; set; }
         public bool IsActive { get; private set; }
@@ -70,7 +71,7 @@ namespace Game.Dialogue
             {
                 WaitingForChoices = true;
                 // Load choices available
-                Debug.Log("Choices available: " + node.Choices.Count);
+                Log("Choices available: " + node.Choices.Count);
 
                 // TODO: You'll have to somehow pass things with the nodes here. Perhaps make
                 // a small class to pass, or, some sort of event listener?
@@ -118,7 +119,7 @@ namespace Game.Dialogue
         {
             IsActive = false;
             ExitScheduled = false;
-            DialogueBox.SetActive(IsActive);
+            DialogueBox.SetActive(false);
             OnConversationComplete?.Invoke();
         }
 
@@ -129,8 +130,10 @@ namespace Game.Dialogue
 
             OnConversationStarted?.Invoke();
 
+            Debug.Log(DialogueBox);
+
             IsActive = true;
-            DialogueBox.SetActive(IsActive);
+            DialogueBox.SetActive(true);
             Next(startChatId);
         }
 
@@ -155,7 +158,7 @@ namespace Game.Dialogue
                 return;
             }
 
-            Debug.Log(node.Text);
+            Log(node.Text);
             DialogueField.text = node.Text;
 
             ExitScheduled = node.IsLast;
@@ -165,5 +168,10 @@ namespace Game.Dialogue
         }
         
         public void SetNameField(string name) => NameField.text = name;
+
+        public void Log(string t)
+        {
+            if (debug) Debug.Log(t);
+        }
     }
 }

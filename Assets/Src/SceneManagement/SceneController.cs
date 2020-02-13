@@ -37,7 +37,7 @@ namespace Game.SceneManagement
                 player.transform.position = new Vector3(startLoc.transform.position.x, player.transform.position.y, startLoc.transform.position.z);
             } else
             {
-                throw new UnityException(GlobalConsts.ERROR_NO_PLAYER_START);
+                throw new UnityException(GlobalConsts.ERROR_NO_PLAYER_START + transform.name);
             }
 
             if (currentSceneData.defaultCameraContainer != null)
@@ -88,7 +88,7 @@ namespace Game.SceneManagement
         {
             if (string.IsNullOrEmpty(SceneName))
             {
-                throw new UnityException(GlobalConsts.ERROR_STRING_EMPTY);
+                throw new UnityException(GlobalConsts.ERROR_STRING_EMPTY + transform.name);
             }
 
             playerStartName = ProvidedStartLocation;

@@ -2,7 +2,6 @@
 using Game.GameCamera;
 using Game.SceneManagement;
 using Game.Interaction;
-using Game.Dialogue;
 
 namespace Game.UserInput
 {
@@ -15,41 +14,31 @@ namespace Game.UserInput
         public static event InputAction OnCancel;
 
         public float maxSpeed = 5f;
-        public bool InteractionsEnabled { get; private set; }
-        public bool MovementEnabled { get; private set; }
-        public Vector3 Facing { get; set; }
-        public Vector3 CurrentVelocity => rbody.velocity;
+        private bool interactionsCooling = false;
+        public bool interactionsEnabled = true;
+        public bool movementEnabled = true;
+        public Vector3 facing = Vector3.forward;
         public RelativeCam relativeCam;
+
+        public Vector3 CurrentVelocity => rbody.velocity;
 
         private Rigidbody rbody;
         private InteractionManager interactionManager;
 
+        // TODO: Perhaps the scene manager should handle this?
         private void OnEnable() {
             SceneController.OnSceneLoadStarted += OnSceneLoadStarted;
             SceneController.OnSceneLoadComplete += OnSceneLoadComplete;
-            DialogueManager.OnConversationStarted += OnConversationStarted;
-            DialogueManager.OnConversationComplete += OnConversationComplete;
         }
 
         private void OnDisable()
         {
             SceneController.OnSceneLoadStarted -= OnSceneLoadStarted;
             SceneController.OnSceneLoadComplete -= OnSceneLoadComplete;
-            DialogueManager.OnConversationStarted -= OnConversationStarted;
-            DialogueManager.OnConversationComplete -= OnConversationComplete;
         }
 
         private void OnSceneLoadStarted() => ToggleMovement(false);
         private void OnSceneLoadComplete() => ToggleMovement(true);
-
-        private void OnConversationStarted() {
-            ToggleMovement(false);
-            InteractionsEnabled = false;
-        }
-        private void OnConversationComplete() {
-            ToggleMovement(true);
-            InteractionsEnabled = true;
-        }
 
         private void Start()
         {
@@ -57,30 +46,26 @@ namespace Game.UserInput
             rbody.freezeRotation = true;
 
             relativeCam = GetComponent<RelativeCam>();
-
             interactionManager = GetComponent<InteractionManager>();
-
-            Facing = Vector3.forward;
-
-            // Do not liiiikkeee
-            InteractionsEnabled = interactionManager != null;
-            MovementEnabled = true;
         }
 
         private void Update()
         {
-            // Can this be used with the handler service?
-            if (InteractionsEnabled)
+            if (interactionsEnabled)
             {
-                // TODO: Is it worth interaction manager listening to input? I'm not sure I'm
-                // happy with all this back and forth between them...
-                if (Input.GetKeyDown(KeyCodeConsts.CONFIRM) || Input.GetButtonDown(KeyCodeConsts.Use))
+                if (interactionsCooling)
+                {
+                    interactionsCooling = false;
+                    return;
+                }
+
+                if (Input.GetButtonDown(KeyCodeConsts.Use))
                 {
                     OnConfirm?.Invoke(INPUT_TYPE.USE);
                     interactionManager.Interact();
                 }
 
-                if (Input.GetKeyDown(KeyCodeConsts.CANCEL))
+                if (Input.GetButtonDown(KeyCodeConsts.Cancel))
                 {
                     OnCancel?.Invoke(INPUT_TYPE.CANCEL);
                     interactionManager.Cancel();
@@ -90,7 +75,7 @@ namespace Game.UserInput
 
         private void FixedUpdate()
         {
-            if (MovementEnabled)
+            if (movementEnabled)
             {
                 float xAxis = Input.GetAxisRaw(KeyCodeConsts.Horizontal);
                 float zAxis = Input.GetAxisRaw(KeyCodeConsts.Vertical);
@@ -109,7 +94,7 @@ namespace Game.UserInput
                 rbody.velocity = vel;
                 
                 // Log which way we're facing
-                Facing = rbody.velocity.normalized;
+                facing = rbody.velocity.normalized;
 
                 // Face the movement direction (if velocity changed)
                 if (xAxis != 0 || zAxis != 0)
@@ -119,13 +104,25 @@ namespace Game.UserInput
                 }
             }
         }
+        
+        public void ToggleInteractions(bool state)
+        {
+            if (state)
+            {
+                interactionsCooling = true;
+            }
 
-        public void ToggleInteractions(bool state) => InteractionsEnabled = state;
+            interactionsEnabled = state;
+        }
 
-        public void ToggleMovement(bool state) => MovementEnabled = state;
-
-        public Vector3 GetDirectionVector3D() => Facing;
+        public void ToggleMovement(bool state)
+        {
+            rbody.velocity = Vector3.zero;
+            movementEnabled = state;
+        }
 
         public float GetCurrentMagnitude() => rbody.velocity.magnitude;
+
+        public Vector3 GetDirectionVector3D() => facing;
     }
 }
