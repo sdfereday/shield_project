@@ -5,30 +5,29 @@ using Game.Toolbox.Helpers;
 
 namespace Game.Interaction
 {
+    [RequireComponent(typeof(InteractionHandlerService))]
     public class InteractionManager : MonoBehaviour
     {
-        public delegate void OnInteracted(INTERACTIBLE_TYPE type, Transform transform);
-        public delegate void OnCancelled(INTERACTIBLE_TYPE type, Transform transform);
-
         public float interactRadius = 1f;
         public Transform interactPosition;
         public Collider interactCollider;
         public LayerMask selectObjectsToHit;
         public Collider[] ignoreColliders;
+
+        private InteractionHandlerService interactionHandler;
         
         private void Start()
         {
             interactPosition = interactPosition == null ? transform : interactPosition;
-            ignoreColliders = ignoreColliders == null ? GetComponents<Collider>() : ignoreColliders;
-
-            interactCollider = interactCollider ? interactCollider : GetComponent<Collider>();
             interactCollider.isTrigger = true;
+
+            interactionHandler = GetComponent<InteractionHandlerService>();
         }
 
         private List<Collider> GetInteractees()
         {
             return Physics.OverlapSphere(interactPosition.position, interactRadius, selectObjectsToHit)
-                .Where(x => ignoreColliders.Any(col => x != col))
+                .Where(x => !ignoreColliders.Any(col => x == col))
                 .OrderBy(x => Vectors.Dist(x.transform.position, transform.position))
                 .Where(x => x != null)
                 .ToList();
@@ -40,34 +39,34 @@ namespace Game.Interaction
             return interactees.Count() > 0 ? interactees[0] : null;
         }
 
-        public void Interact(OnInteracted onInteracted = null)
+        public void Interact()
         {
             Collider closestInteractee = GetClosestInteractee();
             IInteractible interactible = closestInteractee?.GetComponent<IInteractible>();
-
+            
             if (interactible != null)
             {
-                onInteracted?.Invoke(interactible.InteractibleType, interactible.Transform);
-                interactible.Trigger(INTERACTIBLE_TYPE.USER, transform);
+                interactionHandler.OnInteracted(interactible.InteractibleType, interactible.Transform);
+                interactible.Trigger(transform);
             }
         }
 
-        public void Cancel(OnCancelled onCancelled = null)
+        public void Cancel()
         {
             Collider closestInteractee = GetClosestInteractee();
             IInteractible interactible = closestInteractee?.GetComponent<IInteractible>();
 
             if (interactible != null)
             {
-                onCancelled?.Invoke(interactible.InteractibleType, interactible.Transform);
-                interactible.Cancel(INTERACTIBLE_TYPE.USER, transform);
+                interactionHandler.OnCancelled(interactible.InteractibleType, interactible.Transform);
+                interactible.Cancel(transform);
             }
         }
 
         void OnDrawGizmosSelected()
         {
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(transform.position, interactRadius);
+            Gizmos.DrawWireSphere(interactPosition.position, interactRadius);
         }
     }
 }

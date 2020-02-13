@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using Game.GameCamera;
 using Game.SceneManagement;
+using Game.Interaction;
+using Game.Dialogue;
 
 namespace Game.UserInput
 {
@@ -20,20 +22,34 @@ namespace Game.UserInput
         public RelativeCam relativeCam;
 
         private Rigidbody rbody;
+        private InteractionManager interactionManager;
 
         private void OnEnable() {
             SceneController.OnSceneLoadStarted += OnSceneLoadStarted;
             SceneController.OnSceneLoadComplete += OnSceneLoadComplete;
+            DialogueManager.OnConversationStarted += OnConversationStarted;
+            DialogueManager.OnConversationComplete += OnConversationComplete;
         }
 
         private void OnDisable()
         {
             SceneController.OnSceneLoadStarted -= OnSceneLoadStarted;
             SceneController.OnSceneLoadComplete -= OnSceneLoadComplete;
+            DialogueManager.OnConversationStarted -= OnConversationStarted;
+            DialogueManager.OnConversationComplete -= OnConversationComplete;
         }
 
         private void OnSceneLoadStarted() => ToggleMovement(false);
         private void OnSceneLoadComplete() => ToggleMovement(true);
+
+        private void OnConversationStarted() {
+            ToggleMovement(false);
+            InteractionsEnabled = false;
+        }
+        private void OnConversationComplete() {
+            ToggleMovement(true);
+            InteractionsEnabled = true;
+        }
 
         private void Start()
         {
@@ -42,24 +58,32 @@ namespace Game.UserInput
 
             relativeCam = GetComponent<RelativeCam>();
 
+            interactionManager = GetComponent<InteractionManager>();
+
             Facing = Vector3.forward;
 
-            InteractionsEnabled = OnConfirm != null || OnCancel != null;
+            // Do not liiiikkeee
+            InteractionsEnabled = interactionManager != null;
             MovementEnabled = true;
         }
 
         private void Update()
         {
+            // Can this be used with the handler service?
             if (InteractionsEnabled)
             {
-                if (Input.GetKeyDown(KeyCodeConsts.CONFIRM))
+                // TODO: Is it worth interaction manager listening to input? I'm not sure I'm
+                // happy with all this back and forth between them...
+                if (Input.GetKeyDown(KeyCodeConsts.CONFIRM) || Input.GetButtonDown(KeyCodeConsts.Use))
                 {
-                    OnConfirm(INPUT_TYPE.USE);
+                    OnConfirm?.Invoke(INPUT_TYPE.USE);
+                    interactionManager.Interact();
                 }
 
                 if (Input.GetKeyDown(KeyCodeConsts.CANCEL))
                 {
-                    OnCancel(INPUT_TYPE.CANCEL);
+                    OnCancel?.Invoke(INPUT_TYPE.CANCEL);
+                    interactionManager.Cancel();
                 }
             }
         }

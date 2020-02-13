@@ -10,5 +10,6 @@
         public const string ERROR_COMPONENT_NULL = "You must set a component here.";
         public const string ERROR_CAM_CONTAINER_NULL = "You need to specify a container object for the related camera position.";
         public const string ERROR_NO_PLAYER_START = "You are missing a player start, at least one should be added.";
+        public const string ERROR_KEYITEM_UNIQUE = "You cannot hold more than one key item.";
     }
 }

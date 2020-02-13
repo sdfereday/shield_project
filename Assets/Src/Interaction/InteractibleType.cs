@@ -6,7 +6,7 @@
         USER,
         TRANSPORTABLE,
         DOORWAY,
-        DIALOGUE,
+        NPC,
         COLLECTIBLE,
         MECHANISM_TRIGGER,
         SAVE_THE_GAME
