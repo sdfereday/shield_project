@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
+using Game.Constants;
 
 namespace Game.Dialogue
 {
@@ -49,6 +50,8 @@ namespace Game.Dialogue
             }
         }
 
+
+        // TODO: Belongs in an effects helper
         private IEnumerator TypeSentence(DialogueNode node)
         {
             OnNext?.Invoke(node);
@@ -125,12 +128,15 @@ namespace Game.Dialogue
 
         public void StartDialogue(string startChatId, List<DialogueNode> chatData)
         {
+            if (chatData.Count == 0)
+            {
+                throw new UnityException(GlobalConsts.LIST_WAS_EMPTY + transform.name);
+            }
+
             List<DialogueNode> parsedChat = new List<DialogueNode>(chatData);          
             chatIterator = new DialogueIterator(parsedChat);
 
             OnConversationStarted?.Invoke();
-
-            Debug.Log(DialogueBox);
 
             IsActive = true;
             DialogueBox.SetActive(true);

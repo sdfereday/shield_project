@@ -1,11 +1,14 @@
 ﻿using UnityEngine;
+using Game.Toolbox.EditorExtensions;
 
 namespace Game.Entities
 {
     public abstract class Entity : MonoBehaviour
     {
-        // TODO: Use a scriptable object for this stuff perhaps
+        [ReadOnly]
         public string Id;
+
+        [ReadOnly]
         public string Name;
     }
 }

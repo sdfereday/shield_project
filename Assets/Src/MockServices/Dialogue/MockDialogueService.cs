@@ -10,13 +10,11 @@ namespace Game.MockServices
 {
     public class MockDialogueService : MonoBehaviour
     {
-        private string FirstNodeId = "n1";
-        private List<DialogueNode> LoadedChatNodes;
         private Entity[] MockEntities;
-        private List<DialogueNode> ChatNodeData;
+        public List<DialogueNode> ChatNodeData;
 
         /* Nodes could easily have a dialogue editor built for them. */
-        public List<DialogueNode> ChatNodes = new List<DialogueNode>()
+        private List<DialogueNode> ChatNodes = new List<DialogueNode>()
         {
             new DialogueNode()
             {
@@ -98,7 +96,7 @@ namespace Game.MockServices
             return string.Format(original, namesFromParams);
         }
 
-        private void Start()
+        private void Awake()
         {
             // Not the most performent thing, but it works (it won't work efficiently
             // in a game with lots of npc's though, you need to get what you need,

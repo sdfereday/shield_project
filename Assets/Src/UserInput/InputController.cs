@@ -23,7 +23,7 @@ namespace Game.UserInput
         public Vector3 CurrentVelocity => rbody.velocity;
 
         private Rigidbody rbody;
-        private InteractionManager interactionManager;
+        private InteractionController interactionController;
 
         // TODO: Perhaps the scene manager should handle this?
         private void OnEnable() {
@@ -46,7 +46,7 @@ namespace Game.UserInput
             rbody.freezeRotation = true;
 
             relativeCam = GetComponent<RelativeCam>();
-            interactionManager = GetComponent<InteractionManager>();
+            interactionController = GetComponent<InteractionController>();
         }
 
         private void Update()
@@ -62,13 +62,13 @@ namespace Game.UserInput
                 if (Input.GetButtonDown(KeyCodeConsts.Use))
                 {
                     OnConfirm?.Invoke(INPUT_TYPE.USE);
-                    interactionManager.Interact();
+                    interactionController.Interact();
                 }
 
                 if (Input.GetButtonDown(KeyCodeConsts.Cancel))
                 {
                     OnCancel?.Invoke(INPUT_TYPE.CANCEL);
-                    interactionManager.Cancel();
+                    interactionController.Cancel();
                 }
             }
         }

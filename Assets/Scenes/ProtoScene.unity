@@ -152,7 +152,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &17247631
 MonoBehaviour:
@@ -386,7 +386,7 @@ RectTransform:
   m_Children:
   - {fileID: 835918927}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -457,7 +457,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &112107310
 GameObject:
@@ -910,6 +910,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 
   Name: 
+  itemSessionId: protoScene.potion
   itemDataObject: {fileID: 11400000, guid: 847982bc3556cf7409a535085594b744, type: 2}
 --- !u!1 &600318782
 GameObject:
@@ -1094,6 +1095,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 
   Name: 
+  itemSessionId: protoScene.potion3
   itemDataObject: {fileID: 11400000, guid: 847982bc3556cf7409a535085594b744, type: 2}
 --- !u!65 &709879842
 BoxCollider:
@@ -2204,6 +2206,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 
   Name: 
+  itemSessionId: protoScene.potion2
   itemDataObject: {fileID: 11400000, guid: 847982bc3556cf7409a535085594b744, type: 2}
 --- !u!65 &1196706340
 BoxCollider:
@@ -2545,6 +2548,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Id: 
   Name: 
+  itemSessionId: protoScene.keyItem
   itemDataObject: {fileID: 11400000, guid: f9b91d648e5f7cf40bc0f4371dcdc478, type: 2}
 --- !u!65 &1435747137
 BoxCollider:
@@ -2869,6 +2873,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1602179722}
+  - component: {fileID: 1602179725}
   - component: {fileID: 1602179723}
   - component: {fileID: 1602179724}
   - component: {fileID: 1602179727}
@@ -2934,6 +2939,18 @@ MonoBehaviour:
   fadeOutUIImage: {fileID: 1607971640}
   fadeOutLoadingImage: {fileID: 1848862733}
   fadeSpeed: 0.75
+--- !u!114 &1602179725
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1602179720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bfdbef3281c1be45ba9298a631ee15f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1602179727
 MonoBehaviour:
   m_ObjectHideFlags: 0

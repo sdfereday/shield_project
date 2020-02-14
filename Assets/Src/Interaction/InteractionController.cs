@@ -6,7 +6,7 @@ using Game.Toolbox.Helpers;
 namespace Game.Interaction
 {
     [RequireComponent(typeof(InteractionRouter))]
-    public class InteractionManager : MonoBehaviour
+    public class InteractionController : MonoBehaviour
     {
         public float interactRadius = 1f;
         public Transform interactPosition;

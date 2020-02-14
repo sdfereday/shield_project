@@ -35,8 +35,7 @@ namespace Game.Inventory
             // TODO: Maybe don't find by type. An id is far more effective (use a table for this).
             // Check for existing and increase qty if so.
             var existing = itemsField.Find(x => x.Id == collectibleItemObject.Id);
-            Debug.Log(itemsField.Count);
-
+            
             if (existing != null)
             {
                 if (existing.Type == ITEM_TYPE.KEY_ITEM)

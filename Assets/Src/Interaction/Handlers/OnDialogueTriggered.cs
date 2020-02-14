@@ -42,7 +42,7 @@ namespace Game.Interaction
         {
             Debug.Log("Started a conversation.");
 
-            dialogueManager.StartDialogue("n1", mockDialogueService.ChatNodes);
+            dialogueManager.StartDialogue("n1", mockDialogueService.ChatNodeData);
 
             inputController.ToggleMovement(false);
             inputController.ToggleInteractions(false);
