@@ -19,23 +19,31 @@ namespace Game.Dialogue
         public delegate void NextAction(DialogueNode nodeData);
         public static event NextAction OnNext;
 
-        public GameObject DialogueBox;
-        public Text NameField;
-        public Text DialogueField;
-        public GameObject ButtonContainer;
-        public GameObject NextButtonPrefab;
-        public GameObject ChoiceButtonPrefab;
-        public bool debug = false;
-
-        private DialogueIterator chatIterator;
-        private bool WaitingForChoices { get; set; }
         public bool IsActive { get; private set; }
         public bool ExitScheduled { get; private set; }
+
+        public bool debug = false;
+        public GameObject NextButtonPrefab;
+        public GameObject ChoiceButtonPrefab;
+
+        private GameObject DialogueBox;
+        private GameObject ButtonContainer;
+        private Text NameField;
+        private Text DialogueField;
+
+        private DialogueIterator chatIterator;
+        private bool WaitingForChoices = false;
 
         // TODO: Set up a simple animation slide in, as this is a bit crap.
         private void Awake()
         {
+            DialogueBox = GameObject.FindGameObjectWithTag(GlobalConsts.UI_TAG_DIALOGUE_BOX);
+            ButtonContainer = DialogueBox.transform.Find(GlobalConsts.UI_BUTTON_CONTAINER).gameObject;
+            NameField = DialogueBox.transform.Find(GlobalConsts.UI_NAME_FIELD).GetComponent<Text>();
+            DialogueField = DialogueBox.transform.Find(GlobalConsts.UI_DIALOGUE_FIELD).GetComponent<Text>();
+
             DialogueBox.SetActive(false);
+
             ClearButtons();
         }
 

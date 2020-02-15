@@ -11,6 +11,7 @@ TagManager:
   - NPC
   - EventSystem
   - UI.DialogueBox
+  - Scene.DefaultCamContainer
   layers:
   - Default
   - TransparentFX

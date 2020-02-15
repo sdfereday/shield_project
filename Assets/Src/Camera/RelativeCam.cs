@@ -4,15 +4,16 @@ namespace Game.GameCamera
 {
     public class RelativeCam : MonoBehaviour
     {
-        public Transform camTransform;
-
+        private Transform camTransform;
         private Vector3 relativeVelocity;
         private Vector3 relativePosition;
         private Vector2 inputVector;
 
         private Vector3 direction;
         private Vector3 pos;
-        float percent;
+        private float percent;
+
+        private void Start() => camTransform = Camera.main.transform;
 
         private void Update()
         {

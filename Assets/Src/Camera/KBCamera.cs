@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using Game.SceneManagement;
+using Game.Constants;
 
 /* Ref: http://wiki.unity3d.com/index.php?title=OffsetVanishingPoint */
 namespace Game.GameCamera
@@ -16,17 +18,20 @@ namespace Game.GameCamera
         private float colSizeY = 0f;
         private Vector3 colSize;
 
-        public Transform player;
-        public GameObject map;
-        public RelativeCam rCam;
-
+        public GameObject player;
+        
         private void Start()
         {
+            player = GameObject.FindGameObjectWithTag(GlobalConsts.PLAYER_TAG);
+            
             /*
-             * Note to self: Currently not using the 'y' axis ('y' becomes 'z' in this 3D space usage),
-             * this may become a problem in future so keep note.
-             */
-            colSize = map.GetComponent<BoxCollider>().size;
+            * Note to self: Currently not using the 'y' axis ('y' becomes 'z' in this 3D space usage),
+            * this may become a problem in future so keep note.
+            */
+            colSize = GameObject
+                .FindGameObjectWithTag(GlobalConsts.MAP_TAG)
+                .GetComponent<BoxCollider>().size;
+
             colSizeX = colSize.x / 2;
             colSizeY = colSize.z / 2;
         }

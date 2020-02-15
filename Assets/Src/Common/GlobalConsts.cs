@@ -2,6 +2,7 @@
 {
     public static class GlobalConsts
     {
+        public const string MAP_TAG = "Map";
         public const string PLAYER_TAG = "Player";
         public const string CONTEXT_TAG = "GameContext";
         public const string SCENE_CONTEXT_TAG = "SceneContext";
@@ -14,5 +15,10 @@
         public const string ERROR_KEYITEM_UNIQUE = "You cannot hold more than one key item - Location: ";
         public const string SESSION_CACHE_ERROR_DUPLICATE = "You're trying to add an item of the same id to the session cache, this isn't allowed - Location:";
         public const string LIST_WAS_EMPTY = "This list that was passed to the method should not be empty - Location: ";
+        public const string UI_TAG_DIALOGUE_BOX = "UI.DialogueBox";
+        public const string UI_NAME_FIELD = "Name";
+        public const string UI_DIALOGUE_FIELD = "DialogueText";
+        public const string UI_BUTTON_CONTAINER = "ButtonBox";
+        public const string DEFAULT_CAM_CONTAINER_TAG = "Scene.DefaultCamContainer";
     }
 }

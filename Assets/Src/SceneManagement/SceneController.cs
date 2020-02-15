@@ -40,11 +40,8 @@ namespace Game.SceneManagement
                 throw new UnityException(GlobalConsts.ERROR_NO_PLAYER_START + transform.name);
             }
 
-            if (currentSceneData.defaultCameraContainer != null)
-            {
-                RepositionCamera(currentSceneData.defaultCameraContainer);
-            }
-            
+            RepositionCamera(currentSceneData.defaultCameraContainer);
+
             curtain.Fade(SceneCurtain.FadeDirection.Out);
         }
 
