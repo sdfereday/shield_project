@@ -5,6 +5,8 @@ namespace Game.Entities
 {
     public class Npc : InteractibleEntity
     {
+        public NPCObject npcDataObject;
+
         public override INTERACTIBLE_TYPE InteractibleType => INTERACTIBLE_TYPE.NPC;
         private Transform target;
 
@@ -16,6 +18,12 @@ namespace Game.Entities
         public override void Trigger(Transform originTransform)
         {
             target = originTransform;
+        }
+
+        private void Awake()
+        {
+            Id = npcDataObject.Id;
+            Name = npcDataObject.NPCObjectName;
         }
 
         private void FaceTarget()

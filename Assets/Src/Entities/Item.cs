@@ -27,11 +27,14 @@ namespace Game.Entities
             Destroy(gameObject);
         }
 
-        private void Start()
+        private void Awake()
         {
             Id = itemDataObject.Id;
             Name = itemDataObject.CollectibleItemName;
-         
+        }
+
+        private void Start()
+        {         
             gameContext = GameObject.FindGameObjectWithTag(GlobalConsts.CONTEXT_TAG);
             sessionController = gameContext.GetComponent<SessionController>();
 

@@ -7,9 +7,6 @@ namespace Game.Dialogue
 {
     public class DialogueIterator
     {
-        private const string SaveConversationAction = "save";
-        private const string CancelConversationAction = "cancel";
-
         public string ChainPosition { get; private set; }
         private List<DialogueNode> Collection { get; set; }
         private DialogueNode CurrentNode { get; set; }
@@ -33,10 +30,14 @@ namespace Game.Dialogue
             ChatQueue = new Queue<DialogueNode>();
         }
 
+        private bool NodeOutcomeInvalid(DialogueNode node) =>
+            node.HasActions && node.HasRoute;
+
         private bool NodeDataNotValid(DialogueNode node) => node.To == null
             && !node.IsLast
             && !node.HasChoices
-            && !node.HasActions;
+            && !node.HasActions
+            && !node.HasRoute;
 
         private bool NodeDataConflict(DialogueNode node) => node.To != null && node.HasChoices;
 
@@ -52,6 +53,12 @@ namespace Game.Dialogue
             if (NodeDataNotValid(node))
             {
                 Log.Out("The current node is invalid. It must have a 'to' OR 'choices', or, an 'endConversation' action if this was intended.");
+                return false;
+            }
+
+            if (NodeOutcomeInvalid(node))
+            {
+                Log.Out("The current node has conflicting exit methods, either choose actions or a route, NOT both.");
                 return false;
             }
 
@@ -84,7 +91,7 @@ namespace Game.Dialogue
 
             if (CurrentNode == null) return null;
 
-            if (CurrentNode.HasRoute)
+            if (CurrentNode.HasConnection)
             {
                 DialogueNode NextNode = QueryNode(CurrentNode.To);
                 ChatQueue.Enqueue(NextNode);
@@ -92,18 +99,45 @@ namespace Game.Dialogue
 
             if (CurrentNode.HasActions)
             {
-                if (CurrentNode.Actions.Any(action => action == SaveConversationAction))
+                CurrentNode.Actions.ForEach(action =>
                 {
-                    // ... onSave, etc
-                    ChainPosition = CurrentNode.Id;
-                    Log.Out("Saved chain up to ID.");
+                    switch(action.actionKey)
+                    {
+                        case DialogueConsts.SET_STORY_POINT:
+                            // ... onSave, etc
+                            ChainPosition = action.actionValue;
+                            Log.Out("Saved chain up to ID.");
+                            break;
+                        case DialogueConsts.CANCEL_CONVERSATION:
+                            // ... onCancel, etc
+                            Log.Out("Cancelled chain, nothing saved.");
+                            break;
+                        case DialogueConsts.ADD_KEY_ITEM:
+                            // ... onItemAdded, etc
+                            Log.Out("Should add item to inventory.");
+                            break;
+                    }
+                });
+            }
+
+            if (CurrentNode.HasRoute)
+            {
+                bool outcome = false;
+
+                switch (CurrentNode.Route.RouteAction.actionKey)
+                {
+                    case DialogueConsts.CHECK_FOR_ITEM:
+                        // check if inventory has item
+                        // ... todo
+                        outcome = false;
+                        break;
+
                 }
 
-                if (CurrentNode.Actions.Any(action => action == CancelConversationAction))
-                {
-                    // ... onCancel, etc
-                    Log.Out("Cancelled chain, nothing saved.");
-                }
+                string outcomeId = outcome ? CurrentNode.Route.PositiveId : CurrentNode.Route.NegativeId;
+
+                DialogueNode NextNode = QueryNode(outcomeId);
+                ChatQueue.Enqueue(NextNode);
             }
 
             return CurrentNode;

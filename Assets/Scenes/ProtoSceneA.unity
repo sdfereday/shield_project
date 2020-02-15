@@ -909,10 +909,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 240434f9353d188498e4d1726b5da790, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneData: {fileID: 0}
   player: {fileID: 0}
-  rCam: {fileID: 0}
-  map: {fileID: 0}
 --- !u!1 &1031490637
 GameObject:
   m_ObjectHideFlags: 0
@@ -1755,6 +1752,12 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 86981903645932106, guid: a8590836e30e7e24c885142ca4c6a1e9,
+        type: 3}
+      propertyPath: npcDataObject
+      value: 
+      objectReference: {fileID: 11400000, guid: d191fe3232bade449a1fe74e3148f277,
+        type: 2}
     - target: {fileID: 86981903645932107, guid: a8590836e30e7e24c885142ca4c6a1e9,
         type: 3}
       propertyPath: m_LocalPosition.x

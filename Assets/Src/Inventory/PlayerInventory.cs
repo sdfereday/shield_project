@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Game.Constants;
 
@@ -82,5 +83,7 @@ namespace Game.Inventory
                 }
             }
         }
+
+        public bool HasItem(string Id) => itemsField.Any(x => x.Id == Id);
     }
 }
