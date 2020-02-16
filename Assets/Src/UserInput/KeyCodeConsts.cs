@@ -6,5 +6,6 @@
         public const string Vertical = "Vertical";
         public const string Use = "Use";
         public const string Cancel = "Cancel";
+        public const string Inventory = "Inventory";
     }
 }

@@ -4,6 +4,7 @@
     {
         ANY,
         USE,
-        CANCEL
+        CANCEL,
+        INVENTORY
     }
 }

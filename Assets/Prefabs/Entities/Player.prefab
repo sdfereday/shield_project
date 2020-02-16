@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8139817906961451791}
   m_Layer: 9
-  m_Name: Handlers
+  m_Name: EventHandlers
   m_TagString: Untagged
   m_Icon: {fileID: 8418204508859773708, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
@@ -131,7 +131,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: faafeaa9bae8afc4ea76760525b63eb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  camTransform: {fileID: 0}
 --- !u!114 &8139817907947509585
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -6,6 +6,7 @@
         public const string PLAYER_TAG = "Player";
         public const string CONTEXT_TAG = "GameContext";
         public const string SCENE_CONTEXT_TAG = "SceneContext";
+        public const string UI_CONTEXT_TAG = "UI";
         public const string UNTAGGED_TAG = "Untagged";
         public const string DEFAULT_PLAYER_START = "PlayerStart";
         public const string ERROR_STRING_EMPTY = "You must specify a string for this value - Location: ";

@@ -12,6 +12,7 @@ namespace Game.UserInput
         public delegate void InputAction(INPUT_TYPE inputType);
         public static event InputAction OnConfirm;
         public static event InputAction OnCancel;
+        public static event InputAction OnInventory;
 
         public float maxSpeed = 5f;
         private bool interactionsCooling = false;
@@ -69,6 +70,11 @@ namespace Game.UserInput
                 {
                     OnCancel?.Invoke(INPUT_TYPE.CANCEL);
                     interactionController.Cancel();
+                }
+
+                if (Input.GetButtonDown(KeyCodeConsts.Inventory))
+                {
+                    OnInventory?.Invoke(INPUT_TYPE.INVENTORY);
                 }
             }
         }

@@ -29,7 +29,7 @@ namespace Game.Entities
 
         private void Awake()
         {
-            itemData = MockInventoryData.items.Find(x => x.Id == Id);
+            itemData = MockItemData.items.Find(x => x.Id == Id);
             Name = itemData.Name;
         }
 

@@ -10,7 +10,7 @@ using Game.Inventory;
  * and expect it to work. It has to be an item that exists in the game. */
 namespace Game.MockServices
 {
-    public static class MockInventoryData
+    public static class MockItemData
     {
         public static List<ItemMeta> items = new List<ItemMeta>()
         {

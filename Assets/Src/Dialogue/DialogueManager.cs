@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Game.Constants;
 using Game.Inventory;
+using Game.UI;
 
 namespace Game.Dialogue
 {
@@ -35,6 +36,7 @@ namespace Game.Dialogue
         public bool debug = false;
 
         /* Dependencies */
+        private UIContext uiContext;
         private DialogueService dialogueService;
         private GameObject DialogueBox;
         private GameObject ButtonContainer;
@@ -58,10 +60,15 @@ namespace Game.Dialogue
             var gameContext = GameObject.FindGameObjectWithTag(GlobalConsts.CONTEXT_TAG);
             questLogger = gameContext.GetComponent<QuestLogger>();
             dialogueService = gameContext.GetComponent<DialogueService>();
+
+            uiContext = GameObject
+                .FindGameObjectWithTag(GlobalConsts.UI_CONTEXT_TAG)
+                .GetComponent<UIContext>();
+            
             PostActionQueue = new List<DialogueAction>();
 
             // TODO: Set up a simple animation slide in, as this is a bit crap.
-            DialogueBox = GameObject.FindGameObjectWithTag(GlobalConsts.UI_TAG_DIALOGUE_BOX);
+            DialogueBox = uiContext.dialogueBox;
             ButtonContainer = DialogueBox.transform.Find(GlobalConsts.UI_BUTTON_CONTAINER).gameObject;
             NameField = DialogueBox.transform.Find(GlobalConsts.UI_NAME_FIELD).GetComponent<Text>();
             DialogueField = DialogueBox.transform.Find(GlobalConsts.UI_DIALOGUE_FIELD).GetComponent<Text>();
@@ -276,19 +283,15 @@ namespace Game.Dialogue
                          * to prevent this by adding 'must happen before' restrictions on 
                          * chat nodes */
                     case DialogueConsts.CANCEL_CONVERSATION:
-                        Log("Cancelled chain, nothing saved.");
                         OnCancelConversation?.Invoke();
                         break;
                     case DialogueConsts.ADD_KEY_ITEM:
-                        Log("Should add item to inventory.");
                         OnAddItem?.Invoke(action.actionValue);
                         break;
                     case DialogueConsts.OPEN_SHOP:
-                        Log("Open the shop.");
                         OnOpenShop?.Invoke(action.actionValue);
                         break;
                     case DialogueConsts.ADD_LOG_ENTRY:
-                        Log("Add log entry.");
                         OnAddLogEntry?.Invoke(action.actionValue);
                         break;
                     case DialogueConsts.INVALIDATE_CONVERSATION:

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Game.Constants;
+using Game.UI;
 
 namespace Game.SceneManagement
 {
@@ -24,6 +25,7 @@ namespace Game.SceneManagement
             Out // Alpha = 0
         }
 
+        private UIContext uiContext;
         private SceneData currentSceneData;
         private Guid activePortalGUID;
         private string playerStartName = GlobalConsts.DEFAULT_PLAYER_START;
@@ -33,6 +35,21 @@ namespace Game.SceneManagement
         /// </summary>
         private void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
         private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
+
+        private void Awake()
+        {
+            uiContext = GameObject
+                .FindGameObjectWithTag(GlobalConsts.UI_CONTEXT_TAG)
+                .GetComponent<UIContext>();
+
+            fadeOutUIImage = uiContext.transform
+                .Find("CurtainImage")
+                .GetComponent<RawImage>();
+
+            fadeOutLoadingImage = fadeOutUIImage.transform
+                .Find("LoadingImage")
+                .GetComponent<RawImage>();
+        }
 
         private void Init()
         {

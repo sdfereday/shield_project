@@ -258,7 +258,7 @@ namespace Game.MockServices
                             new DialogueAction()
                             {
                                 actionKey = "openShop",
-                                actionValue = "shopId"
+                                actionValue = "defaultShopId"
                             }
                         }
                     }

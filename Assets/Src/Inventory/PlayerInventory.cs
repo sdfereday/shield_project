@@ -40,7 +40,7 @@ namespace Game.Inventory
             else
             {
                 // TODO: Make sure we're checking against a schema to cut down on splicing hacks (if it's not in schema, it's not getting in).
-                var itemData = MockInventoryData.items.Find(x => x.Id == Id);
+                var itemData = MockItemData.items.Find(x => x.Id == Id);
                 
                 itemsField.Add(new ItemMeta()
                 {

@@ -11,12 +11,20 @@ namespace Game.MockServices
 {
     public static class MockShopData
     {
-        public static List<ShopItemMeta> items = new List<ShopItemMeta>()
+        public static List<ShopMeta> shops = new List<ShopMeta>()
         {
-            new ShopItemMeta()
+            new ShopMeta()
             {
-                Id = "chickenId",
-                Qty = 50
+                Id = "defaultShopId",
+                Description = "Default shop of legend.",
+                ItemsSold = new List<ShopItemMeta>()
+                {
+                    new ShopItemMeta()
+                    {
+                        Id = "chickenId",
+                        Qty = 50
+                    }
+                }
             }
         };
     }
