@@ -2,22 +2,13 @@
 using System.Linq;
 using UnityEngine;
 using Game.Constants;
+using Game.MockServices;
+using Game.DataManagement;
 
 namespace Game.Inventory
 {
     public class PlayerInventory : MonoBehaviour
     {
-        [System.Serializable]
-        public class ItemMeta
-        {
-            public string Id;
-            public string Name;
-            public int Qty;
-            public ITEM_TYPE Type;
-            public int HealthValue;
-            public int MpValue;
-        }
-
         [SerializeField]
         public List<ItemMeta> itemsField;
         public List<ItemMeta> Items { get => itemsField; }
@@ -31,11 +22,11 @@ namespace Game.Inventory
             itemsField = loadedItems != null ? new List<ItemMeta>(loadedItems) : new List<ItemMeta>();
         }
 
-        public void AddItem(CollectibleItem collectibleItemObject, int qty = 1)
+        public void AddItem(string Id, int qty = 1)
         {
             // TODO: Maybe don't find by type. An id is far more effective (use a table for this).
             // Check for existing and increase qty if so.
-            var existing = itemsField.Find(x => x.Id == collectibleItemObject.Id);
+            var existing = itemsField.Find(x => x.Id == Id);
             
             if (existing != null)
             {
@@ -48,16 +39,18 @@ namespace Game.Inventory
             }
             else
             {
-                // Meta is just used to populate the temporary instance of the UI, etc.
+                // TODO: Make sure we're checking against a schema to cut down on splicing hacks (if it's not in schema, it's not getting in).
+                var itemData = MockInventoryData.items.Find(x => x.Id == Id);
+                
                 itemsField.Add(new ItemMeta()
                 {
-                    // TODO: Make sure we're checking against a schema to cut down on splicing hacks (if it's not in schema, it's not getting in).
-                    Id = collectibleItemObject.Id,
-                    Name = collectibleItemObject.CollectibleItemName,
+                    Id = itemData.Id,
+                    Name = itemData.Name,
+                    Description = itemData.Description,
                     Qty = qty,
-                    Type = collectibleItemObject.CollectibleItemType,
-                    HealthValue = collectibleItemObject.CollectibleItemHealthValue,
-                    MpValue = collectibleItemObject.CollectibleItemMpValue
+                    Type = itemData.Type,
+                    HealthValue = itemData.HealthValue,
+                    MpValue = itemData.MpValue
                 });
             }
         }

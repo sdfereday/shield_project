@@ -3,10 +3,19 @@ using System.Collections.Generic;
 namespace Game.Dialogue
 {
     [System.Serializable]
+    public class RouteBool
+    {
+        public string method;
+        public string value;
+    }
+
+    [System.Serializable]
     public class DialogueAction
     {
         public string actionKey;
         public string actionValue;
+        // TODO: Setting default may mess with data parse, take note.
+        public bool waitForFinish = true;
     }
 
     [System.Serializable]
@@ -14,7 +23,7 @@ namespace Game.Dialogue
     {
         public string PositiveId { get; set; }
         public string NegativeId { get; set; }
-        public DialogueAction RouteAction { get; set; }
+        public RouteBool RouteBool { get; set; }
     }
 
     [System.Serializable]

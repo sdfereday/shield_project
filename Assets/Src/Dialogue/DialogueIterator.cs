@@ -12,6 +12,7 @@ namespace Game.Dialogue
         private DialogueNode CurrentNode { get; set; }
         private Action<string> OnChatComplete { get; set; }
         private Queue<DialogueNode> ChatQueue { get; set; }
+        private DialogueNode PreviousNode;
 
         public DialogueIterator(List<DialogueNode> _collection)
         {
@@ -78,7 +79,12 @@ namespace Game.Dialogue
             return ValidateNode(nextNode) ? nextNode : null;
         }
 
-        private DialogueNode PreviousNode;
+        public void PushNext(string query)
+        {
+            DialogueNode NextNode = QueryNode(query);
+            ChatQueue.Enqueue(NextNode);
+        }
+   
         public DialogueNode GoToNext(string query = null)
         {
             if (ChatQueue.Count == 0 && query == null)
@@ -90,55 +96,6 @@ namespace Game.Dialogue
             DialogueNode CurrentNode = query != null ? QueryNode(query) : ChatQueue.Dequeue();
 
             if (CurrentNode == null) return null;
-
-            if (CurrentNode.HasConnection)
-            {
-                DialogueNode NextNode = QueryNode(CurrentNode.To);
-                ChatQueue.Enqueue(NextNode);
-            }
-
-            if (CurrentNode.HasActions)
-            {
-                CurrentNode.Actions.ForEach(action =>
-                {
-                    switch(action.actionKey)
-                    {
-                        case DialogueConsts.SET_STORY_POINT:
-                            // ... onSave, etc
-                            ChainPosition = action.actionValue;
-                            Log.Out("Saved chain up to ID.");
-                            break;
-                        case DialogueConsts.CANCEL_CONVERSATION:
-                            // ... onCancel, etc
-                            Log.Out("Cancelled chain, nothing saved.");
-                            break;
-                        case DialogueConsts.ADD_KEY_ITEM:
-                            // ... onItemAdded, etc
-                            Log.Out("Should add item to inventory.");
-                            break;
-                    }
-                });
-            }
-
-            if (CurrentNode.HasRoute)
-            {
-                bool outcome = false;
-
-                switch (CurrentNode.Route.RouteAction.actionKey)
-                {
-                    case DialogueConsts.CHECK_FOR_ITEM:
-                        // check if inventory has item
-                        // ... todo
-                        outcome = false;
-                        break;
-
-                }
-
-                string outcomeId = outcome ? CurrentNode.Route.PositiveId : CurrentNode.Route.NegativeId;
-
-                DialogueNode NextNode = QueryNode(outcomeId);
-                ChatQueue.Enqueue(NextNode);
-            }
 
             return CurrentNode;
         }

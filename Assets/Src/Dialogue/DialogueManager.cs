@@ -1,23 +1,31 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using Game.Constants;
+using Game.Inventory;
 
 namespace Game.Dialogue
 {
-    // How do we know who is speaking?
     public class DialogueManager : MonoBehaviour
     {
         public delegate void StartedAction();
         public static event StartedAction OnConversationStarted;
-
         public delegate void CompleteAction();
         public static event CompleteAction OnConversationComplete;
+        public delegate void CancelAction();
+        public static event CancelAction OnCancelConversation;
 
         public delegate void NextAction(DialogueNode nodeData);
         public static event NextAction OnNext;
+        public delegate void StoryAction(string pointId);
+        public static event StoryAction OnSetStoryPoint;
+        public delegate void AddItemAction(string itemId);
+        public static event AddItemAction OnAddItem;
+        public delegate void OpenShopAction(string shopId);
+        public static event OpenShopAction OnOpenShop;
 
         public bool IsActive { get; private set; }
         public bool ExitScheduled { get; private set; }
@@ -31,8 +39,11 @@ namespace Game.Dialogue
         private Text NameField;
         private Text DialogueField;
 
-        private DialogueIterator chatIterator;
+        private DialogueIterator dialogueIterator;
         private bool WaitingForChoices = false;
+
+        // TODO: If you need these to wait each time, use a queue with coroutine instead.
+        private List<DialogueAction> PostActionQueue { get; set; }
 
         // TODO: Set up a simple animation slide in, as this is a bit crap.
         private void Awake()
@@ -43,8 +54,9 @@ namespace Game.Dialogue
             DialogueField = DialogueBox.transform.Find(GlobalConsts.UI_DIALOGUE_FIELD).GetComponent<Text>();
 
             DialogueBox.SetActive(false);
-
             ClearButtons();
+
+            PostActionQueue = new List<DialogueAction>();
         }
 
         private void ClearButtons()
@@ -62,8 +74,6 @@ namespace Game.Dialogue
         // TODO: Belongs in an effects helper
         private IEnumerator TypeSentence(DialogueNode node)
         {
-            OnNext?.Invoke(node);
-
             NameField.text = node.ActorName;
             DialogueField.text = "";
 
@@ -131,6 +141,10 @@ namespace Game.Dialogue
             IsActive = false;
             ExitScheduled = false;
             DialogueBox.SetActive(false);
+
+            TriggerActions(PostActionQueue);
+            PostActionQueue.Clear();
+
             OnConversationComplete?.Invoke();
         }
 
@@ -141,8 +155,8 @@ namespace Game.Dialogue
                 throw new UnityException(GlobalConsts.LIST_WAS_EMPTY + transform.name);
             }
 
-            List<DialogueNode> parsedChat = new List<DialogueNode>(chatData);          
-            chatIterator = new DialogueIterator(parsedChat);
+            List<DialogueNode> parsedChat = new List<DialogueNode>(chatData);
+            dialogueIterator = new DialogueIterator(parsedChat);
 
             OnConversationStarted?.Invoke();
 
@@ -163,7 +177,7 @@ namespace Game.Dialogue
 
             ClearButtons();
 
-            DialogueNode node = chatIterator.GoToNext(nodeId);
+            DialogueNode node = dialogueIterator.GoToNext(nodeId);
 
             if (node == null)
             {
@@ -177,11 +191,92 @@ namespace Game.Dialogue
 
             ExitScheduled = node.IsLast;
 
+            /* Connection parsing */
+            if (node.HasConnection)
+            {
+                dialogueIterator.PushNext(node.To);
+            }
+
+            /* Route parsing */
+            if (node.HasRoute)
+            {
+                bool outcome = false;
+
+                /* Note: Route actions make no sense when queued, so don't bother. Also
+                 * not a huge fan of doing this to detect an item existing, but for
+                 * now it's all we've got. I'll figure a way to get this working
+                 * via a delegate instead at some point. */
+                switch (node.Route.RouteBool.method)
+                {
+                    case DialogueConsts.CHECK_FOR_ITEM:
+                        outcome = GameObject
+                            .FindGameObjectWithTag(GlobalConsts.CONTEXT_TAG)
+                            .GetComponent<PlayerInventory>()
+                            .HasItem(node.Route.RouteBool.value);
+                        break;
+                }
+
+                string outcomeId = outcome ? node.Route.PositiveId : node.Route.NegativeId;
+
+                dialogueIterator.PushNext(outcomeId);
+            }
+
+            /* Action parsing & events */
+            if (node.HasActions)
+            {
+                List<DialogueAction> postActions = node.Actions
+                    .Where(x => x.waitForFinish)
+                    .ToList();
+
+                PostActionQueue.AddRange(postActions);
+
+                List<DialogueAction> immediateActions = node.Actions
+                    .Where(x => !x.waitForFinish)
+                    .ToList();
+
+                TriggerActions(immediateActions);
+            }
+
+            OnNext?.Invoke(node);
+
+            /* Begin output of text */
             StopAllCoroutines();
             StartCoroutine(TypeSentence(node));
         }
         
         public void SetNameField(string name) => NameField.text = name;
+
+        public void TriggerActions(List<DialogueAction> actions)
+        {
+            actions.ForEach(action =>
+            {
+                switch (action.actionKey)
+                {
+                    /* Note: At present you can skip ahead if in the right scene, may want
+                         * to prevent this by adding 'must happen before' restrictions on 
+                         * chat nodes */
+                    case DialogueConsts.SET_STORY_POINT:
+                        Log("Saved chain up to ID.");
+                        OnSetStoryPoint?.Invoke(action.actionValue);
+                        break;
+                    case DialogueConsts.CANCEL_CONVERSATION:
+                        Log("Cancelled chain, nothing saved.");
+                        OnCancelConversation?.Invoke();
+                        break;
+                    case DialogueConsts.ADD_KEY_ITEM:
+                        Log("Should add item to inventory.");
+                        OnAddItem?.Invoke(action.actionValue);
+                        break;
+                    case DialogueConsts.OPEN_SHOP:
+                        Log("Open the shop.");
+                        OnOpenShop?.Invoke(action.actionValue);
+                        break;
+                    case DialogueConsts.TEST_ACTION:
+                        Log("This is a test action, it does nothing special.");
+                        break;
+                }
+            });
+        }
 
         public void Log(string t)
         {

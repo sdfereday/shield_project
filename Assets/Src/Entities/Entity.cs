@@ -5,7 +5,6 @@ namespace Game.Entities
 {
     public abstract class Entity : MonoBehaviour
     {
-        [ReadOnly]
         public string Id;
 
         [ReadOnly]

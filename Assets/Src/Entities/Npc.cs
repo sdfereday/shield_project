@@ -1,11 +1,13 @@
 ﻿using UnityEngine;
 using Game.Interaction;
+using Game.DataManagement;
+using Game.MockServices;
 
 namespace Game.Entities
 {
     public class Npc : InteractibleEntity
     {
-        public NPCObject npcDataObject;
+        public NPCMeta npcData;
 
         public override INTERACTIBLE_TYPE InteractibleType => INTERACTIBLE_TYPE.NPC;
         private Transform target;
@@ -22,8 +24,8 @@ namespace Game.Entities
 
         private void Awake()
         {
-            Id = npcDataObject.Id;
-            Name = npcDataObject.NPCObjectName;
+            npcData = MockNPCMeta.items.Find(x => x.Id == Id);
+            Name = npcData.Name;
         }
 
         private void FaceTarget()

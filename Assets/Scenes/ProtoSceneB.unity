@@ -206,12 +206,17 @@ PrefabInstance:
         type: 3}
       propertyPath: itemDataObject
       value: 
-      objectReference: {fileID: 11400000, guid: 54a4365819b2c6b40b6f2f587dd16278,
+      objectReference: {fileID: 11400000, guid: 847982bc3556cf7409a535085594b744,
         type: 2}
     - target: {fileID: 6168912128782489522, guid: 0f7a2171c8350a849ac3ce117a0dee11,
         type: 3}
       propertyPath: itemSessionId
-      value: protoSceneB.keyItem
+      value: protoSceneB.potion
+      objectReference: {fileID: 0}
+    - target: {fileID: 6168912128782489522, guid: 0f7a2171c8350a849ac3ce117a0dee11,
+        type: 3}
+      propertyPath: Id
+      value: chickenId
       objectReference: {fileID: 0}
     - target: {fileID: 6168912128782489526, guid: 0f7a2171c8350a849ac3ce117a0dee11,
         type: 3}
@@ -271,7 +276,7 @@ PrefabInstance:
     - target: {fileID: 6168912128782489549, guid: 0f7a2171c8350a849ac3ce117a0dee11,
         type: 3}
       propertyPath: m_Name
-      value: KeyItem
+      value: Item
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f7a2171c8350a849ac3ce117a0dee11, type: 3}
@@ -963,10 +968,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 70d7cab78c51c734a85cf6293fb867cd,
         type: 2}
+    - target: {fileID: 732403676914829419, guid: ad120b663295ce94fb40c145117267be,
+        type: 3}
+      propertyPath: Id
+      value: npcId2
+      objectReference: {fileID: 0}
     - target: {fileID: 732403676914829427, guid: ad120b663295ce94fb40c145117267be,
         type: 3}
       propertyPath: m_Name
       value: NPC (Shop)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5510565305510234836, guid: ad120b663295ce94fb40c145117267be,
+        type: 3}
+      propertyPath: startDialogueById
+      value: npcId2Shop
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ad120b663295ce94fb40c145117267be, type: 3}

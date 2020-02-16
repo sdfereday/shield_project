@@ -1,11 +1,15 @@
-﻿/* This is mock data that is used alongside the dialogue runner
- * tests and should not be used in production. */
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Game.Dialogue;
 using Game.Entities;
 
+/* A mock collection of dialogues that, if game saved, will appear here. Usually
+ * you'd see these in a JSON file or something. They only get updated when you
+ * actually save the game though. You'll find there's no schema right now
+ * for the different items but there 'are' objects pre-built that the system
+ * will look for. So basically you can't just throw any old thing in here
+ * and expect it to work. It has to be an item that exists in the game. */
 namespace Game.MockServices
 {
     public class MockDialogueService : MonoBehaviour
@@ -26,17 +30,8 @@ namespace Game.MockServices
                     new DialogueNode()
                     {
                         Id = "choice1",
-                        To = "n4",
-                        Text = "Browse wears.",
-                        IsLast = true,
-                        Actions = new List<DialogueAction>
-                        {
-                            new DialogueAction()
-                            {
-                                actionKey = "openShop",
-                                actionValue = "shopId"
-                            }
-                        }
+                        To = "npdId2Shop2",
+                        Text = "Browse wears."
                     },
                     new DialogueNode()
                     {
@@ -44,7 +39,22 @@ namespace Game.MockServices
                         To = "s1",
                         Text = "Ask about the hat."
                     }
-                },
+                }
+            },
+            new DialogueNode()
+            {
+                Id = "npdId2Shop2",
+                Text = "Excellent. If you like hats, I'm your man.",
+                ActorId = "npcId2",
+                IsLast = true,
+                Actions = new List<DialogueAction>
+                {
+                    new DialogueAction()
+                    {
+                        actionKey = "openShop",
+                        actionValue = "shopId"
+                    }
+                }
             }
         };
 
@@ -124,24 +134,18 @@ namespace Game.MockServices
             new DialogueNode()
             {
                 Id = "s1",
-                To = "s2Check",
                 Text = "I heard you have a hat or something..?",
                 ActorId = "playerId",
-            },
-            new DialogueNode()
-            {
-               Id = "s2Check",
-               ActorId = "playerId",
-               Route = new DialogueRoute()
-               {
-                    PositiveId = "s2a",
-                    NegativeId = "s2b",
-                    RouteAction = new DialogueAction()
-                    {
-                        actionKey = "checkForItem",
-                        actionValue = "cashmereHat"
-                    }
-               }
+                Route = new DialogueRoute()
+                   {
+                        PositiveId = "s2a",
+                        NegativeId = "s2b",
+                        RouteBool = new RouteBool()
+                        {
+                            method = "checkForItem",
+                            value = "cashmereHat"
+                        }
+                   }
             },
             new DialogueNode()
             {
@@ -212,11 +216,6 @@ namespace Game.MockServices
             // in a game with lots of npc's though, you need to get what you need,
             // maybe put the id's in the chat data at the top?)
             MockEntities = FindObjectsOfType<Entity>();
-
-            foreach(Entity thing in MockEntities)
-            {
-                Debug.Log(thing.Id);
-            }
 
             // Combine all parsable nodes (careful you don't get ID conflicts)
             List<DialogueNode> allNodes = new List<DialogueNode>();

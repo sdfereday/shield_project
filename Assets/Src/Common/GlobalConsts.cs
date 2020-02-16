@@ -20,5 +20,6 @@
         public const string UI_DIALOGUE_FIELD = "DialogueText";
         public const string UI_BUTTON_CONTAINER = "ButtonBox";
         public const string DEFAULT_CAM_CONTAINER_TAG = "Scene.DefaultCamContainer";
+        public const string ERROR_NO_DIALOGUE_START_ID = "This entity needs a dialogue Id before it can start talking.";
     }
 }

@@ -1,15 +1,15 @@
 ﻿using UnityEngine;
 using Game.Interaction;
-using Game.Inventory;
 using Game.DataManagement;
 using Game.Constants;
+using Game.MockServices;
 
 namespace Game.Entities
 {
     public class Item : InteractibleEntity
     {
         public string itemSessionId;
-        public CollectibleItem itemDataObject;
+        public ItemMeta itemData;
 
         public override INTERACTIBLE_TYPE InteractibleType => INTERACTIBLE_TYPE.COLLECTIBLE;
 
@@ -29,8 +29,8 @@ namespace Game.Entities
 
         private void Awake()
         {
-            Id = itemDataObject.Id;
-            Name = itemDataObject.CollectibleItemName;
+            itemData = MockInventoryData.items.Find(x => x.Id == Id);
+            Name = itemData.Name;
         }
 
         private void Start()

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Game.DataManagement;
 using Game.Inventory;
 
 /* A mock collection of items that, if game saved, will appear here. Usually
@@ -11,29 +12,37 @@ namespace Game.MockServices
 {
     public static class MockInventoryData
     {
-        public static List<PlayerInventory.ItemMeta> items = new List<PlayerInventory.ItemMeta>()
+        public static List<ItemMeta> items = new List<ItemMeta>()
         {
-            new PlayerInventory.ItemMeta()
+            new ItemMeta()
             {
                 Id = "chickenId",
                 Name = "Chicken",
+                Description = "A tasty piece of Chicken.",
                 Qty = 1,
                 Type = ITEM_TYPE.STANDARD_ITEM,
                 HealthValue = 100,
                 MpValue = 50
-            }
-        };
-
-        public static List<PlayerInventory.ItemMeta> keyItems = new List<PlayerInventory.ItemMeta>()
-        {
-            new PlayerInventory.ItemMeta()
+            },
+            new ItemMeta()
             {
-                Id = "keyItemId",
+                Id = "goldenKey",
                 Name = "Golden Key Of Legend",
+                Description = "The generic golden key that will open a door somewhere. Probably.",
                 Qty = 1,
                 Type = ITEM_TYPE.KEY_ITEM,
-                HealthValue = 100,
-                MpValue = 50
+                HealthValue = 0,
+                MpValue = 0
+            },
+            new ItemMeta()
+            {
+                Id = "cashmereHat",
+                Name = "Cashmere Hat",
+                Description = "A Hat of purest Cashmere, nice.",
+                Qty = 1,
+                Type = ITEM_TYPE.KEY_ITEM,
+                HealthValue = 0,
+                MpValue = 0
             }
         };
     }

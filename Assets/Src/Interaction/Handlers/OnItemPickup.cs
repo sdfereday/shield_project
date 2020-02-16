@@ -19,7 +19,7 @@ namespace Game.Interaction
         public override void Run(Transform interactibleTransform, System.Action onHandlerFinished = null)
         {
             Debug.Log("Picked up a " + interactibleTransform.GetComponent<Item>().Name + ".");
-            inventory.AddItem(interactibleTransform.GetComponent<Item>().itemDataObject);
+            inventory.AddItem(interactibleTransform.GetComponent<Item>().itemData.Id);
         }
     }
 }
