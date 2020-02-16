@@ -37,7 +37,8 @@ namespace Game.MockServices
                     {
                         Id = "choice2",
                         To = "s1",
-                        Text = "Ask about the hat."
+                        Text = "Ask about the hat.",
+                        VisibleFrom = 1
                     }
                 }
             },
@@ -130,7 +131,28 @@ namespace Game.MockServices
                     }
                 }
             },
-            // ^ Forward shift in story progress someone, only IF the quest was accepted.
+
+            new DialogueNode()
+            {
+                Id = "dd3",
+                Text = "Did you get my hat yet {0}?",
+                ActorId = "npcId",
+                IsLast = true,
+                TextParams = new string[] {
+                    "playerId"
+                }
+            },
+            new DialogueNode()
+            {
+                Id = "dd4",
+                Text = "Thanks again for getting my hat {0}!",
+                ActorId = "npcId",
+                IsLast = true,
+                TextParams = new string[] {
+                    "playerId"
+                }
+            },
+
             new DialogueNode()
             {
                 Id = "s1",

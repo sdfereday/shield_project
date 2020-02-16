@@ -38,6 +38,7 @@ namespace Game.Dialogue
         public string From { get; set; }
         public string To { get; set; }
         public string Text { get; set; }
+        public int VisibleFrom { get; set; }
         public bool IsLast { get; set; }
         public List<DialogueNode> Choices { get; set; }
         public List<DialogueAction> Actions { get; set; }

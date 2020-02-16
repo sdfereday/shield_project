@@ -32,4 +32,13 @@ namespace Game.DataManagement
         [ReadOnly]
         public string Description;
     }
+
+    [System.Serializable]
+    public class ShopItemMeta
+    {
+        [ReadOnly]
+        public string Id;
+        [ReadOnly]
+        public int Qty;
+    }
 }

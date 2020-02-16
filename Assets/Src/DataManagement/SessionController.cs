@@ -28,6 +28,25 @@ namespace Game.DataManagement
         public bool ItemExists(string id) =>
             itemCache.Any(item => item == id);
 
-        // ...
+        // Story Progress Marker
+        public class StoryLocation
+        {
+            public string triggeredByActor;
+            public string storyPointId;
+        }
+
+        private StoryLocation currentStoryLocation = new StoryLocation() {
+            storyPointId = "n1",
+            triggeredByActor = "npcId"
+        };
+
+        public void SetStoryStep(string pointId, string nextActorId)
+        {
+            currentStoryLocation.storyPointId = pointId;
+            currentStoryLocation.triggeredByActor = nextActorId;
+        }
+
+        public StoryLocation GetCurrentStoryLocation()
+            => currentStoryLocation;
     }
 }

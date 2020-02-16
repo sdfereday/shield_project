@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Game.Dialogue;
+using Game.DataManagement;
 using Game.UserInput;
 using Game.Entities;
 using Game.Constants;
@@ -16,6 +17,7 @@ namespace Game.Interaction
 
         private GameObject gameContext;
         private GameObject sceneContext;
+        private SessionController sessionController;
         private DialogueManager dialogueManager;
         private MockDialogueService mockDialogueService;
 
@@ -26,13 +28,11 @@ namespace Game.Interaction
             player = GameObject.FindGameObjectWithTag(GlobalConsts.PLAYER_TAG);
             inputController = player.GetComponent<InputController>();
 
-            inventory = GameObject
-                .FindGameObjectWithTag(GlobalConsts.CONTEXT_TAG)
-                .GetComponent<PlayerInventory>();
+            gameContext = GameObject.FindGameObjectWithTag(GlobalConsts.CONTEXT_TAG);
+            inventory = gameContext.GetComponent<PlayerInventory>();
+            sessionController = gameContext.GetComponent<SessionController>();
 
-            sceneContext = GameObject
-                .FindGameObjectWithTag(GlobalConsts.SCENE_CONTEXT_TAG);
-
+            sceneContext = GameObject.FindGameObjectWithTag(GlobalConsts.SCENE_CONTEXT_TAG);
             dialogueManager = sceneContext.GetComponent<DialogueManager>();
             mockDialogueService = sceneContext.GetComponent<MockDialogueService>();
         }
@@ -41,12 +41,14 @@ namespace Game.Interaction
         {
             DialogueManager.OnConversationComplete += OnConversationComplete;
             DialogueManager.OnAddItem += OnAddItem;
+            DialogueManager.OnSetStoryPoint -= OnSetStoryPoint;
         }
 
         private void OnDisable()
         {
             DialogueManager.OnConversationComplete -= OnConversationComplete;
             DialogueManager.OnAddItem -= OnAddItem;
+            DialogueManager.OnSetStoryPoint -= OnSetStoryPoint;
         }
 
         public override void Run(Transform interactibleTransform, System.Action onHandlerFinished = null)
@@ -55,7 +57,7 @@ namespace Game.Interaction
 
             var startId = interactibleTransform
                 .GetComponent<DialogueEntity>()
-                .startDialogueById;
+                .GetCurrentDialogueStartId();
 
             dialogueManager.StartDialogue(startId, mockDialogueService.ChatNodeData);
 
@@ -81,6 +83,11 @@ namespace Game.Interaction
         public void OnAddItem(string itemId)
         {
             inventory.AddItem(itemId);
+        }
+
+        public void OnSetStoryPoint(string pointId)
+        {
+            sessionController.SetStoryStep(pointId);
         }
     }
 }
