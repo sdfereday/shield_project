@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Game.Constants;
-using Game.Toolbox.Effects;
 
 namespace Game.SceneManagement
 {
@@ -14,14 +15,24 @@ namespace Game.SceneManagement
         public delegate void SceneLoadedAction();
         public static event SceneLoadedAction OnSceneLoadComplete;
 
+        public RawImage fadeOutUIImage;
+        public RawImage fadeOutLoadingImage;
+        public float fadeSpeed = 0.8f;
+        public enum FadeDirection
+        {
+            In, // Alpha = 1
+            Out // Alpha = 0
+        }
+
         private SceneData currentSceneData;
-        private SceneCurtain curtain;
         private Guid activePortalGUID;
         private string playerStartName = GlobalConsts.DEFAULT_PLAYER_START;
 
+        /// <summary>
+        /// Scene controller functionality
+        /// </summary>
         private void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
         private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
-        private void Awake() => curtain = GetComponent<SceneCurtain>();
 
         private void Init()
         {
@@ -42,7 +53,7 @@ namespace Game.SceneManagement
 
             RepositionCamera(currentSceneData.defaultCameraContainer);
 
-            curtain.Fade(SceneCurtain.FadeDirection.Out);
+            Fade(FadeDirection.Out);
         }
 
         private void RepositionCamera(GameObject cameraContainerInput)
@@ -75,7 +86,7 @@ namespace Game.SceneManagement
             {
                 activePortalGUID = portalGUID;
                 OnSceneLoadStarted?.Invoke();
-                curtain.FadeInOut(() => RepositionCamera(cameraContainerInput), () => OnEndTransition());
+                FadeInOut(() => RepositionCamera(cameraContainerInput), () => OnEndTransition());
             }
         }
 
@@ -91,7 +102,72 @@ namespace Game.SceneManagement
             playerStartName = ProvidedStartLocation;
 
             OnSceneLoadStarted?.Invoke();
-            curtain.FadeIn(() => SceneManager.LoadScene(SceneName));
+            FadeIn(() => SceneManager.LoadScene(SceneName));
         }
+
+        
+        /// <summary>
+        /// UI & Scene Effects
+        /// </summary>
+        private void SetColorImage(ref float alpha, FadeDirection fadeDirection)
+        {
+            fadeOutUIImage.color = new Color(fadeOutUIImage.color.r, fadeOutUIImage.color.g, fadeOutUIImage.color.b, alpha);
+            fadeOutLoadingImage.color = new Color(fadeOutLoadingImage.color.r, fadeOutLoadingImage.color.g, fadeOutLoadingImage.color.b, alpha);
+
+            alpha += Time.deltaTime * (1.0f / fadeSpeed) * ((fadeDirection == FadeDirection.Out) ? -1 : 1);
+        }
+
+        private IEnumerator DoFade(FadeDirection fadeDirection)
+        {
+            float alpha = (fadeDirection == FadeDirection.Out) ? 1 : 0;
+            float fadeEndValue = (fadeDirection == FadeDirection.Out) ? 0 : 1;
+
+            if (fadeDirection == FadeDirection.Out)
+            {
+                while (alpha >= fadeEndValue)
+                {
+                    SetColorImage(ref alpha, fadeDirection);
+                    yield return null;
+                }
+                fadeOutUIImage.enabled = false;
+                fadeOutLoadingImage.enabled = false;
+            }
+            else
+            {
+                fadeOutUIImage.enabled = true;
+                fadeOutLoadingImage.enabled = true;
+                while (alpha <= fadeEndValue)
+                {
+                    SetColorImage(ref alpha, fadeDirection);
+                    yield return null;
+                }
+            }
+        }
+
+        private IEnumerator FadeAndExec(FadeDirection fadeDirection, Action onTransitionComplete)
+        {
+            yield return DoFade(fadeDirection);
+            onTransitionComplete?.Invoke();
+        }
+
+        private IEnumerator FadeInExecAndOut(Action onMidTransition = null, Action onTransitionComplete = null)
+        {
+            yield return DoFade(FadeDirection.In);
+            onMidTransition?.Invoke();
+            yield return DoFade(FadeDirection.Out);
+            onTransitionComplete?.Invoke();
+        }
+
+        public void Fade(FadeDirection fadeDirection, Action onTransitionComplete = null) =>
+            StartCoroutine(FadeAndExec(fadeDirection, onTransitionComplete));
+
+        public void FadeIn(Action onTransitionComplete = null) =>
+            StartCoroutine(FadeAndExec(FadeDirection.In, onTransitionComplete));
+
+        public void FadeOut(Action onTransitionComplete = null) =>
+            StartCoroutine(FadeAndExec(FadeDirection.Out, onTransitionComplete));
+
+        public void FadeInOut(Action onMidTransition = null, Action onTransitionComplete = null) =>
+            StartCoroutine(FadeInExecAndOut(onMidTransition, onTransitionComplete));
     }
 }

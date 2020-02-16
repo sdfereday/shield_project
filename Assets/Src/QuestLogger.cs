@@ -2,16 +2,13 @@
 using System.Linq;
 using System.Collections.Generic;
 
-// TODO: Maybe just use this for quest logging? Leave the rest like inventory to its self.
-// TODO: Change Id to value.
 [System.Serializable]
 public class LogEntry
 {
-    public string Id;
-    public string Desc;
+    public string Value;
 }
 
-public class WorldLogger : MonoBehaviour
+public class QuestLogger : MonoBehaviour
 {
     public List<LogEntry> Entries;
 
@@ -21,11 +18,11 @@ public class WorldLogger : MonoBehaviour
     }
 
     public bool HasEntry(string val)
-        => Entries.Any(x => x.Id == val);
+        => Entries.Any(x => x.Value == val);
 
     public void AddEntry(LogEntry newEntry)
     {
-        if (Entries.Any(x => x.Id == newEntry.Id))
+        if (Entries.Any(x => x.Value == newEntry.Value))
         {
             throw new UnityException("You can't have a duplicate log Id.");
         }

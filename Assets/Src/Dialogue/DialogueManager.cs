@@ -11,62 +11,65 @@ namespace Game.Dialogue
 {
     public class DialogueManager : MonoBehaviour
     {
+        /* Flow delegates */
         public delegate void StartedAction();
         public static event StartedAction OnConversationStarted;
         public delegate void CompleteAction();
         public static event CompleteAction OnConversationComplete;
         public delegate void CancelAction();
         public static event CancelAction OnCancelConversation;
-
         public delegate void NextAction(DialogueNode nodeData);
         public static event NextAction OnNext;
+
+        /* Specific delegates */
         public delegate void AddItemAction(string itemId);
         public static event AddItemAction OnAddItem;
         public delegate void OpenShopAction(string shopId);
         public static event OpenShopAction OnOpenShop;
         public delegate void AddLogEntryAction(string entryValue);
         public static event AddLogEntryAction OnAddLogEntry;
-        public delegate void ValidateConversation(string cnvId, bool state);
-        public static event ValidateConversation OnValidateSet;
-
-        public bool IsActive { get; private set; }
-        public bool ExitScheduled { get; private set; }
-
-        public bool debug = false;
+        
+        /* Editor visible */
         public GameObject NextButtonPrefab;
         public GameObject ChoiceButtonPrefab;
+        public bool debug = false;
 
+        /* Dependencies */
+        private DialogueService dialogueService;
         private GameObject DialogueBox;
         private GameObject ButtonContainer;
         private Text NameField;
         private Text DialogueField;
-
         private DialogueIterator dialogueIterator;
-        private bool WaitingForChoices = false;
+        private List<DialogueWrapper> conversations;
+        private QuestLogger questLogger;
 
-        private WorldLogger worldLogger;
-
+        /* Caching */
         // TODO: If you need these to wait each time, use a queue with coroutine instead.
         private List<DialogueAction> PostActionQueue { get; set; }
 
-        // TODO: Set up a simple animation slide in, as this is a bit crap.
+        /* Component state */
+        private bool WaitingForChoices = false;
+        private bool IsActive = false;
+        private bool ExitScheduled = false;
+
         private void Awake()
         {
+            var gameContext = GameObject.FindGameObjectWithTag(GlobalConsts.CONTEXT_TAG);
+            questLogger = gameContext.GetComponent<QuestLogger>();
+            dialogueService = gameContext.GetComponent<DialogueService>();
+            PostActionQueue = new List<DialogueAction>();
+
+            // TODO: Set up a simple animation slide in, as this is a bit crap.
             DialogueBox = GameObject.FindGameObjectWithTag(GlobalConsts.UI_TAG_DIALOGUE_BOX);
             ButtonContainer = DialogueBox.transform.Find(GlobalConsts.UI_BUTTON_CONTAINER).gameObject;
             NameField = DialogueBox.transform.Find(GlobalConsts.UI_NAME_FIELD).GetComponent<Text>();
             DialogueField = DialogueBox.transform.Find(GlobalConsts.UI_DIALOGUE_FIELD).GetComponent<Text>();
 
-            worldLogger = GameObject
-                .FindGameObjectWithTag(GlobalConsts.CONTEXT_TAG)
-                .GetComponent<WorldLogger>();
-
             DialogueBox.SetActive(false);
             ClearButtons();
-
-            PostActionQueue = new List<DialogueAction>();
         }
-
+        
         private void ClearButtons()
         {
             if (ButtonContainer.transform.childCount > 0)
@@ -77,7 +80,6 @@ namespace Game.Dialogue
                 }
             }
         }
-
 
         // TODO: Belongs in an effects helper
         private IEnumerator TypeSentence(DialogueNode node)
@@ -94,20 +96,15 @@ namespace Game.Dialogue
             // Used later for setting first highlighted button
             var buttonCache = new List<GameObject>();
 
-            // TODO: I don't think we should instantiate buttons, maybe just have them on standby but hidden. Way
-            // more performant than adding event triggers all the time.
             if (node.HasChoices)
             {
                 WaitingForChoices = true;
-                // Load choices available
+
                 Log("Choices available: " + node.Choices.Count);
 
-                // TODO: You'll have to somehow pass things with the nodes here. Perhaps make
-                // a small class to pass, or, some sort of event listener?
-                // Or however many you need...
                 node.Choices.ForEach(choice =>
                 {
-                    if (!string.IsNullOrEmpty(choice.VisibleWithQuest) && !worldLogger.HasEntry(choice.VisibleWithQuest))
+                    if (!string.IsNullOrEmpty(choice.VisibleWithQuest) && !questLogger.HasEntry(choice.VisibleWithQuest))
                     {
                         return;
                     }
@@ -123,7 +120,7 @@ namespace Game.Dialogue
                         .onClick.AddListener(() =>
                         {
                             WaitingForChoices = false;
-                            Next(choice.To);
+                            Next(choice.To, choice.FindIn);
                         });
                 });
 
@@ -161,15 +158,17 @@ namespace Game.Dialogue
             OnConversationComplete?.Invoke();
         }
 
-        public void StartDialogue(string startChatId, List<DialogueNode> chatData)
+        public void StartDialogue(string startChatId, List<DialogueNode> loadedNodes, List<DialogueWrapper> loadedConversations)
         {
-            if (chatData.Count == 0)
+            if (loadedNodes.Count == 0)
             {
                 throw new UnityException(GlobalConsts.LIST_WAS_EMPTY + transform.name);
             }
 
-            List<DialogueNode> parsedChat = new List<DialogueNode>(chatData);
-            dialogueIterator = new DialogueIterator(parsedChat);
+            dialogueService.Reload();
+
+            conversations = new List<DialogueWrapper>(loadedConversations);
+            dialogueIterator = new DialogueIterator(loadedNodes);
 
             OnConversationStarted?.Invoke();
 
@@ -178,7 +177,7 @@ namespace Game.Dialogue
             Next(startChatId);
         }
 
-        public void Next(string nodeId = null)
+        public void Next(string nodeId = null, string findIn = null)
         {
             if (WaitingForChoices || !IsActive) return;
 
@@ -189,6 +188,14 @@ namespace Game.Dialogue
             }
 
             ClearButtons();
+
+            if (findIn != null)
+            {
+                var switchTo = conversations.Find(x => x.Id == findIn);
+                dialogueIterator = new DialogueIterator(switchTo.Nodes);
+
+                Debug.Log("Switched to conversation: " + findIn);
+            }
 
             DialogueNode node = dialogueIterator.GoToNext(nodeId);
 
@@ -285,16 +292,28 @@ namespace Game.Dialogue
                         OnAddLogEntry?.Invoke(action.actionValue);
                         break;
                     case DialogueConsts.INVALIDATE_CONVERSATION:
-                        OnValidateSet?.Invoke(action.actionValue, false);
+                        dialogueService.SetValidationOnConvo(action.actionValue, false);
                         break;
                     case DialogueConsts.VALIDATE_CONVERSATION:
-                        OnValidateSet?.Invoke(action.actionValue, true);
+                        dialogueService.SetValidationOnConvo(action.actionValue, true);
                         break;
                     case DialogueConsts.TEST_ACTION:
                         Log("This is a test action, it does nothing special.");
                         break;
                 }
             });
+        }
+
+        public void Mount(string entityId)
+        {
+            var mostRelevantConvo = dialogueService.Conversations
+                .Where(x => x.TriggeredBy == entityId && x.Valid)
+                .ToList()
+                .FirstOrDefault();
+
+            var startId = mostRelevantConvo.Nodes.FirstOrDefault().Id;
+
+            StartDialogue(startId, mostRelevantConvo.Nodes, dialogueService.Conversations);
         }
 
         public void Log(string t)

@@ -14,7 +14,7 @@ namespace Game.Entities
         public override INTERACTIBLE_TYPE InteractibleType => INTERACTIBLE_TYPE.COLLECTIBLE;
 
         private GameObject gameContext;
-        private SessionController sessionController;
+        private SceneCache sceneCache;
 
         public override void Cancel(Transform originTransform)
         {
@@ -23,7 +23,7 @@ namespace Game.Entities
 
         public override void Trigger(Transform originTransform)
         {
-            sessionController.RegisterItem(itemSessionId);
+            sceneCache.RegisterItem(itemSessionId);
             Destroy(gameObject);
         }
 
@@ -36,7 +36,7 @@ namespace Game.Entities
         private void Start()
         {         
             gameContext = GameObject.FindGameObjectWithTag(GlobalConsts.CONTEXT_TAG);
-            sessionController = gameContext.GetComponent<SessionController>();
+            sceneCache = gameContext.GetComponent<SceneCache>();
 
             /* We don't use the inventory because of the player uses the item
              * and it gets destroyed, there's no longer a point of reference.
@@ -45,7 +45,7 @@ namespace Game.Entities
              * when we only need them here in one place. */
             if (!string.IsNullOrEmpty(itemSessionId))
             {
-                bool alreadyOwned = sessionController.ItemExists(itemSessionId);
+                bool alreadyOwned = sceneCache.ItemExists(itemSessionId);
 
                 if (alreadyOwned)
                 {

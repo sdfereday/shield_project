@@ -1,37 +1,11 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Game.Dialogue;
-using Game.Entities;
 
-/* A mock collection of dialogues that, if game saved, will appear here. Usually
- * you'd see these in a JSON file or something. They only get updated when you
- * actually save the game though. You'll find there's no schema right now
- * for the different items but there 'are' objects pre-built that the system
- * will look for. So basically you can't just throw any old thing in here
- * and expect it to work. It has to be an item that exists in the game. */
 namespace Game.MockServices
 {
-    public class MockDialogueService : MonoBehaviour
+    public static class MockDialogueData
     {
-        private Entity[] MockEntities;
-        public List<DialogueNode> ChatNodeData;
-        
-        public class DialogueWrapper
-        {
-            // the id to get it with
-            public string Id;
-            // the npc that triggers it
-            public string TriggeredBy;
-            // is this convo valid?
-            public bool Valid;
-            // required log entries to use it
-            public List<string> RequiredLogEntries;
-            // the nodes to parse when you get it
-            public List<DialogueNode> Nodes;
-        }
-
-        public List<DialogueWrapper> Conversations = new List<DialogueWrapper>()
+        public static List<DialogueWrapper> Items = new List<DialogueWrapper>()
         {
             // Jade
             new DialogueWrapper()
@@ -346,64 +320,5 @@ namespace Game.MockServices
                 }
             }
         };
-
-        private string ParseName(string actorId)
-        {
-            Entity currentActor = MockEntities.FirstOrDefault(y => y.Id == actorId);
-            return currentActor ? currentActor.Name : "Undefined";
-        }
-
-        private string ParseText(string original, string[] textParams)
-        {
-            string[] namesFromParams = textParams != null ? textParams
-                .Select(id =>
-                {
-                    Entity current = MockEntities.FirstOrDefault(y => y.Id == id);
-                    return current != null ? current.Name : "Undefined";
-                })
-                .ToArray() : new string[] { "Undefined" };
-
-            return string.IsNullOrEmpty(original) ?
-                string.Empty : string.Format(original, namesFromParams);
-        }
-
-        public void SetValidationOnConvo(string cnvId, bool state)
-        {
-            List<DialogueWrapper> cClone = new List<DialogueWrapper>(Conversations);
-
-            cClone[cClone.FindIndex(ind => ind.Id == cnvId)].Valid = state;
-
-            Conversations = cClone;
-        }
-
-        public List<DialogueNode> GetChatNodeData(string cnvId)
-        {
-            // Not the most performent thing, but it works (it won't work efficiently
-            // in a game with lots of npc's though, you need to get what you need,
-            // maybe put the id's in the chat data at the top?)
-            MockEntities = FindObjectsOfType<Entity>();
-
-            // Combine all parsable nodes (careful you don't get ID conflicts)
-            var allNodes = Conversations.Find(x => x.Id == cnvId).Nodes;
-
-            // Bootstrap the new conversation (again implementation may vary)
-            return new List<DialogueNode>(allNodes).Select(node =>
-            {
-                node.ActorName = ParseName(node.ActorId);
-                node.Text = ParseText(node.Text, node.TextParams);
-
-                if (node.Choices != null)
-                {
-                    node.Choices
-                        .ForEach(subNode =>
-                        {
-                            subNode.ActorName = ParseName(node.ActorId);
-                            subNode.Text = ParseText(subNode.Text, subNode.TextParams);
-                        });
-                }
-
-                return node;
-            }).ToList();
-        }
     }
 }
