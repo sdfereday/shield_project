@@ -20,12 +20,14 @@ namespace Game.Dialogue
 
         public delegate void NextAction(DialogueNode nodeData);
         public static event NextAction OnNext;
-        public delegate void StoryAction(string pointId);
-        public static event StoryAction OnSetStoryPoint;
         public delegate void AddItemAction(string itemId);
         public static event AddItemAction OnAddItem;
         public delegate void OpenShopAction(string shopId);
         public static event OpenShopAction OnOpenShop;
+        public delegate void AddLogEntryAction(string entryValue);
+        public static event AddLogEntryAction OnAddLogEntry;
+        public delegate void ValidateConversation(string cnvId, bool state);
+        public static event ValidateConversation OnValidateSet;
 
         public bool IsActive { get; private set; }
         public bool ExitScheduled { get; private set; }
@@ -42,6 +44,8 @@ namespace Game.Dialogue
         private DialogueIterator dialogueIterator;
         private bool WaitingForChoices = false;
 
+        private WorldLogger worldLogger;
+
         // TODO: If you need these to wait each time, use a queue with coroutine instead.
         private List<DialogueAction> PostActionQueue { get; set; }
 
@@ -52,6 +56,10 @@ namespace Game.Dialogue
             ButtonContainer = DialogueBox.transform.Find(GlobalConsts.UI_BUTTON_CONTAINER).gameObject;
             NameField = DialogueBox.transform.Find(GlobalConsts.UI_NAME_FIELD).GetComponent<Text>();
             DialogueField = DialogueBox.transform.Find(GlobalConsts.UI_DIALOGUE_FIELD).GetComponent<Text>();
+
+            worldLogger = GameObject
+                .FindGameObjectWithTag(GlobalConsts.CONTEXT_TAG)
+                .GetComponent<WorldLogger>();
 
             DialogueBox.SetActive(false);
             ClearButtons();
@@ -99,7 +107,10 @@ namespace Game.Dialogue
                 // Or however many you need...
                 node.Choices.ForEach(choice =>
                 {
-
+                    if (!string.IsNullOrEmpty(choice.VisibleWithQuest) && !worldLogger.HasEntry(choice.VisibleWithQuest))
+                    {
+                        return;
+                    }
 
                     GameObject ButtonObj = Instantiate(ChoiceButtonPrefab, ButtonContainer.transform.position, Quaternion.identity, ButtonContainer.transform);
                     buttonCache.Add(ButtonObj);
@@ -257,10 +268,6 @@ namespace Game.Dialogue
                     /* Note: At present you can skip ahead if in the right scene, may want
                          * to prevent this by adding 'must happen before' restrictions on 
                          * chat nodes */
-                    case DialogueConsts.SET_STORY_POINT:
-                        Log("Saved chain up to ID.");
-                        OnSetStoryPoint?.Invoke(action.actionValue);
-                        break;
                     case DialogueConsts.CANCEL_CONVERSATION:
                         Log("Cancelled chain, nothing saved.");
                         OnCancelConversation?.Invoke();
@@ -272,6 +279,16 @@ namespace Game.Dialogue
                     case DialogueConsts.OPEN_SHOP:
                         Log("Open the shop.");
                         OnOpenShop?.Invoke(action.actionValue);
+                        break;
+                    case DialogueConsts.ADD_LOG_ENTRY:
+                        Log("Add log entry.");
+                        OnAddLogEntry?.Invoke(action.actionValue);
+                        break;
+                    case DialogueConsts.INVALIDATE_CONVERSATION:
+                        OnValidateSet?.Invoke(action.actionValue, false);
+                        break;
+                    case DialogueConsts.VALIDATE_CONVERSATION:
+                        OnValidateSet?.Invoke(action.actionValue, true);
                         break;
                     case DialogueConsts.TEST_ACTION:
                         Log("This is a test action, it does nothing special.");

@@ -13,6 +13,14 @@ namespace Game.Inventory
         public List<ItemMeta> itemsField;
         public List<ItemMeta> Items { get => itemsField; }
 
+        private WorldLogger logger;
+
+        private void Awake()
+        {
+            GameObject gameContext = GameObject.FindGameObjectWithTag(GlobalConsts.CONTEXT_TAG);
+            logger = gameContext.GetComponent<WorldLogger>();
+        }
+
         // TODO: Usually a data load would likely trigger the Init method, so that needs sorting.
         public void Init(List<ItemMeta> loadedItems = null)
         {
@@ -52,6 +60,16 @@ namespace Game.Inventory
                     HealthValue = itemData.HealthValue,
                     MpValue = itemData.MpValue
                 });
+
+                // Tell the world logger we picked up an important item
+                if (itemData.Type == ITEM_TYPE.KEY_ITEM)
+                {
+                    logger.AddEntry(new LogEntry()
+                    {
+                        Id = itemData.Id,
+                        Desc = "Added a key item to inventory: " + itemData.Id
+                    });
+                }
             }
         }
 

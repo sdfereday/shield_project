@@ -37,8 +37,9 @@ namespace Game.Dialogue
         public string[] Targets { get; set; }
         public string From { get; set; }
         public string To { get; set; }
+        public string FindIn { get; set; }
         public string Text { get; set; }
-        public int VisibleFrom { get; set; }
+        public string VisibleWithQuest { get; set; }
         public bool IsLast { get; set; }
         public List<DialogueNode> Choices { get; set; }
         public List<DialogueAction> Actions { get; set; }

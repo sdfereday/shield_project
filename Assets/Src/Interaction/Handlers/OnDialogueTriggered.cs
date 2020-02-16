@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 using Game.Dialogue;
 using Game.DataManagement;
 using Game.UserInput;
@@ -20,6 +22,7 @@ namespace Game.Interaction
         private SessionController sessionController;
         private DialogueManager dialogueManager;
         private MockDialogueService mockDialogueService;
+        private WorldLogger logger;
 
         private Transform interactionTarget;
 
@@ -31,6 +34,7 @@ namespace Game.Interaction
             gameContext = GameObject.FindGameObjectWithTag(GlobalConsts.CONTEXT_TAG);
             inventory = gameContext.GetComponent<PlayerInventory>();
             sessionController = gameContext.GetComponent<SessionController>();
+            logger = gameContext.GetComponent<WorldLogger>();
 
             sceneContext = GameObject.FindGameObjectWithTag(GlobalConsts.SCENE_CONTEXT_TAG);
             dialogueManager = sceneContext.GetComponent<DialogueManager>();
@@ -41,25 +45,33 @@ namespace Game.Interaction
         {
             DialogueManager.OnConversationComplete += OnConversationComplete;
             DialogueManager.OnAddItem += OnAddItem;
-            DialogueManager.OnSetStoryPoint -= OnSetStoryPoint;
+            DialogueManager.OnAddLogEntry += OnAddLogEntry;
+            DialogueManager.OnValidateSet += OnValidateSet;
         }
 
         private void OnDisable()
         {
             DialogueManager.OnConversationComplete -= OnConversationComplete;
             DialogueManager.OnAddItem -= OnAddItem;
-            DialogueManager.OnSetStoryPoint -= OnSetStoryPoint;
+            DialogueManager.OnAddLogEntry -= OnAddLogEntry;
+            DialogueManager.OnValidateSet -= OnValidateSet;
         }
 
         public override void Run(Transform interactibleTransform, System.Action onHandlerFinished = null)
         {
             Debug.Log("Started a conversation.");
 
-            var startId = interactibleTransform
-                .GetComponent<DialogueEntity>()
-                .GetCurrentDialogueStartId();
+            /* Find all conversations triggered by the interacted transform (unoptimized at present */
+            var id = interactibleTransform.GetComponent<Entity>().Id;
+            var mostRelevantConvo =
+                mockDialogueService.Conversations.Where(x => x.TriggeredBy == id && x.Valid)
+                .ToList()
+                .FirstOrDefault();
 
-            dialogueManager.StartDialogue(startId, mockDialogueService.ChatNodeData);
+            var nodeData = mockDialogueService.GetChatNodeData(mostRelevantConvo.Id);
+            var startId = nodeData.FirstOrDefault().Id;
+                            
+            dialogueManager.StartDialogue(startId, nodeData);
 
             inputController.ToggleMovement(false);
             inputController.ToggleInteractions(false);
@@ -85,9 +97,20 @@ namespace Game.Interaction
             inventory.AddItem(itemId);
         }
 
-        public void OnSetStoryPoint(string pointId)
+        public void OnAddLogEntry(string entryValue)
         {
-            sessionController.SetStoryStep(pointId);
+            Debug.Log("Add entry.");
+
+            logger.AddEntry(new LogEntry()
+            {
+                Id = entryValue,
+                Desc = "Had a conversation and logged value of: " + entryValue
+            });
+        }
+
+        public void OnValidateSet(string cnvId, bool state)
+        {
+            mockDialogueService.SetValidationOnConvo(cnvId, state);
         }
     }
 }

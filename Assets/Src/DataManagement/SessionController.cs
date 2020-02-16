@@ -29,6 +29,7 @@ namespace Game.DataManagement
             itemCache.Any(item => item == id);
 
         // Story Progress Marker
+        /* 
         public class StoryLocation
         {
             public string triggeredByActor;
@@ -47,6 +48,6 @@ namespace Game.DataManagement
         }
 
         public StoryLocation GetCurrentStoryLocation()
-            => currentStoryLocation;
+            => currentStoryLocation;*/
     }
 }
