@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Game.Constants;
 using Game.Inventory;
 using Game.UI;
+using Game.DataManagement;
 
 namespace Game.Dialogue
 {

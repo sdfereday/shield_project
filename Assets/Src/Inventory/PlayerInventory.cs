@@ -9,9 +9,7 @@ namespace Game.Inventory
 {
     public class PlayerInventory : MonoBehaviour
     {
-        [SerializeField]
-        public List<ItemMeta> itemsField;
-        public List<ItemMeta> Items { get => itemsField; }
+        public List<ItemMeta> Items { get; private set; }
 
         // TODO: Usually a data load would likely trigger the Init method, so that needs sorting.
         public void Init(List<ItemMeta> loadedItems = null)
@@ -19,14 +17,17 @@ namespace Game.Inventory
             // Notice how it's the meta that's getting stored here. The SO doesn't get touched
             // and is only used for reference. This might be what needs to be done on the 
             // scene context also...
-            itemsField = loadedItems != null ? new List<ItemMeta>(loadedItems) : new List<ItemMeta>();
+            Items = loadedItems != null ? new List<ItemMeta>(loadedItems) : new List<ItemMeta>();
         }
+
+        // As mentioned above, this is just until data is plugged in.
+        private void Awake() => Init();
 
         public void AddItem(string Id, int qty = 1)
         {
             // TODO: Maybe don't find by type. An id is far more effective (use a table for this).
             // Check for existing and increase qty if so.
-            var existing = itemsField.Find(x => x.Id == Id);
+            var existing = Items.Find(x => x.Id == Id);
             
             if (existing != null)
             {
@@ -42,7 +43,7 @@ namespace Game.Inventory
                 // TODO: Make sure we're checking against a schema to cut down on splicing hacks (if it's not in schema, it's not getting in).
                 var itemData = MockItemData.items.Find(x => x.Id == Id);
                 
-                itemsField.Add(new ItemMeta()
+                Items.Add(new ItemMeta()
                 {
                     Id = itemData.Id,
                     Name = itemData.Name,
@@ -57,7 +58,7 @@ namespace Game.Inventory
 
         public void RemoveItem(string Id, int qty = 1)
         {
-            var existing = itemsField.Find(x => x.Id == Id);
+            var existing = Items.Find(x => x.Id == Id);
 
             if (existing != null)
             {
@@ -72,11 +73,11 @@ namespace Game.Inventory
                 }
                 else
                 {
-                    itemsField.RemoveAll(x => x.Id == Id);
+                    Items.RemoveAll(x => x.Id == Id);
                 }
             }
         }
 
-        public bool HasItem(string Id) => itemsField.Any(x => x.Id == Id);
+        public bool HasItem(string Id) => Items.Any(x => x.Id == Id);
     }
 }

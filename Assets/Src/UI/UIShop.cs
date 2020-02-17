@@ -3,21 +3,23 @@ using Game.MockServices;
 using Game.DataManagement;
 using Game.Dialogue;
 
-namespace Game.Interaction
+namespace Game.UI
 {
-    public class OnOpenShopEvent : MonoBehaviour
+    public class UIShop : MonoBehaviour
     {
+        public GameObject slotPrefab;
+
         private void OnEnable()
         {
-            DialogueManager.OnOpenShop += OnOpenShop;
+            DialogueManager.OnOpenShop += OpenShop;
         }
 
         private void OnDisable()
         {
-            DialogueManager.OnOpenShop -= OnOpenShop;
+            DialogueManager.OnOpenShop -= OpenShop;
         }
 
-        public void OnOpenShop(string shopId)
+        public void OpenShop(string shopId)
         {
             Debug.Log("Trigger a shop open command and display using shop Id of " + shopId + ".");
 

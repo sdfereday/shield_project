@@ -4,6 +4,7 @@ using Game.UserInput;
 using Game.Entities;
 using Game.Constants;
 using Game.Inventory;
+using Game.DataManagement;
 
 namespace Game.Interaction
 {

@@ -6,5 +6,6 @@ namespace Game.UI
     {
         public GameObject dialogueBox;
         public GameObject sceneCurtain;
+        public GameObject uiInventory;
     }
 }
