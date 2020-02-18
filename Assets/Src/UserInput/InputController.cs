@@ -13,6 +13,7 @@ namespace Game.UserInput
         public static event InputAction OnConfirm;
         public static event InputAction OnCancel;
         public static event InputAction OnInventory;
+        public static event InputAction OnDirectional;
 
         public float maxSpeed = 5f;
         private bool interactionsCooling = false;
@@ -75,6 +76,12 @@ namespace Game.UserInput
                 if (Input.GetButtonDown(KeyCodeConsts.Inventory))
                 {
                     OnInventory?.Invoke(INPUT_TYPE.INVENTORY);
+                }
+
+                // TODO: Find out if this is a heavy operation to do.
+                if (Input.GetButtonDown(KeyCodeConsts.Horizontal) || Input.GetButtonDown(KeyCodeConsts.Vertical))
+                {
+                    OnDirectional?.Invoke(INPUT_TYPE.DIRECTIONAL);
                 }
             }
         }

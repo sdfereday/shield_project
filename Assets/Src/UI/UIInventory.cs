@@ -17,15 +17,18 @@ namespace Game.UI
         public Text titleText;
         public GameObject slotPrefab;
         private PlayerInventory playerInventory;
+        private ItemMeta currentlySelectedItem;
 
         private void OnEnable()
         {
             InputController.OnInventory += OpenInventory;
+            InputController.OnDirectional += OnDirectional;
         }
 
         private void OnDisable()
         {
             InputController.OnInventory -= OpenInventory;
+            InputController.OnDirectional -= OnDirectional;
         }
 
         private void Start()
@@ -43,6 +46,30 @@ namespace Game.UI
             // Constant please
             titleText.text = "Inventory";
         }
+
+        private void UpdateText()
+        {
+            var currentObj = EventSystem.current
+                .currentSelectedGameObject;
+
+            if (currentObj != null)
+            {
+                UIEventButton uiItem = currentObj.GetComponent<UIEventButton>();
+
+                if (uiItem == null)
+                {
+                    return;
+                }
+
+                titleText.text = "Selected: " + uiItem.holdsItem.Name;
+            }
+        }
+
+        /* This is a temporary bandaid to solve the problem of
+         * a hover event with controller. I'm fairly sure there's
+         * a better way but I haven't found it yet. */
+        private void OnDirectional(INPUT_TYPE type) =>
+            UpdateText();
 
         public void OpenInventory(INPUT_TYPE type)
         {
@@ -70,10 +97,8 @@ namespace Game.UI
             {
                 GameObject inst = Instantiate(slotPrefab, new Vector3(0, 0, 0), Quaternion.identity, slotParent);
 
-                inst.GetComponent<UIEventButtonHover>()
-                    .RegisterOnEnter(item, (ItemMeta holdsItem) => {
-                        titleText.text = "Inventory: " + holdsItem.Name;
-                    });
+                inst.GetComponent<UIEventButton>()
+                    .RegisterItem(item);
 
                 prefCache.Add(inst);
             });
@@ -81,6 +106,8 @@ namespace Game.UI
             // Apparently you have to null it before it'll pick up the actual button after that.
             EventSystem.current.SetSelectedGameObject(null);
             EventSystem.current.SetSelectedGameObject(prefCache[0]);
+
+            UpdateText();
         }
     }
 }

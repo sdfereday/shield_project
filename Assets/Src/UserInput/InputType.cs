@@ -5,6 +5,7 @@
         ANY,
         USE,
         CANCEL,
-        INVENTORY
+        INVENTORY,
+        DIRECTIONAL
     }
 }
